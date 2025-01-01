@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "rentals.h"
-
+#include "lib.h"
 
 int main() {
     Customer customers[50];  // Array can store however many i just put 50 so change if u need
