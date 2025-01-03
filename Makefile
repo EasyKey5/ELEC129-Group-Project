@@ -1,6 +1,6 @@
 CC = gcc
 FLAGS = -Wall -g
-SRC = $(wildcard *.c)
+SRC = $(wildcard src/*.c)
 OUT = "./bin/program"
 
 
