@@ -1,5 +1,7 @@
 #pragma once
 
+#define SCREEN_WIDTH 100
+#define MAX_CUSTOMERS 50
 #define MAX_MOVIE_NAME_LENGTH 50
 #define MAX_CUSTOMER_NAME_LENGTH 100
 #define MAX_ADDRESS_LENGTH 150
@@ -21,6 +23,12 @@ typedef struct Customer {
   int rentNo;
 } Customer;
 
+// Utils
+void printCenter(char string[]);
+void divider();
+void chooseFromOptions(int *choice, int n, char **options);
+
+// Customers
 void askID(int *id);
 void addCustomer(Customer *customers, int *CustomerNo);
 void displayCustomerInfo(Customer *customer);

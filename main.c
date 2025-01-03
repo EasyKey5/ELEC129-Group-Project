@@ -6,22 +6,35 @@
 
 int main() {
 
-  Customer customers[50]; // Array can store however many i just put 50 so change if u need
-  int customerNumber = 0;
+  Customer customers[50];
+  int existingCustomers = 0;
   int choice;
 
-  do {
+  puts("");
 
-    printf("==============================================================================================\n\n");
-    printf("==============================================================================================\n");
-    printf("=================================>   Welcome back to the   <==================================\n");
-    printf("=============================>   Snazzy Video Rental Customer   <=============================\n");
-    printf("===================================>      Database!      <====================================\n");
-    printf("==============================================================================================\n\n");
-    printf("==============================================================================================\n");
-    printf("================================> What would you like to do ? <===============================\n");
-    printf("==============================================================================================\n\n");
-    printf("==============================================================================================\n");
+  divider();
+  printCenter("12");
+  printCenter("123");
+  printCenter("Welcome back to the");
+  printCenter("Snazzy Video Rental System!");
+  printCenter("Who are you?");
+  divider();
+  divider();
+  char *modeOptions[3] = {"For Manager", "For Registration", "For Sales Clerk"};
+
+  chooseFromOptions(&choice, 3, modeOptions);
+  do {
+    divider();
+    divider();
+    printCenter("Welcome back to the");
+    printCenter("Snazzy Video Rental Customer");
+    printCenter("Database!");
+    divider();
+    divider();
+    printCenter("What would you like to do?");
+    divider();
+    divider();
+
     printf("=> To create a new customer account enter: --< 1 \n");
     printf("==============================================================================================\n");
     printf("=> To rent a movie enter: -------------------< 2 \n");
