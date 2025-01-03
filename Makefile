@@ -1,10 +1,20 @@
 CC = gcc
+FLAGS = -Wall -g
+SRC = $(wildcard *.c)
+OUT = "./bin/program"
 
-all: rentals
 
-rentals: customers.c films.c main.c
-	rm -f "./bin/program" || true 
+all: 
+	make build 
+	make run
+
+build:
 	mkdir -p "./bin/"
-	$(CC) "./customers.c" "./main.c" "./films.c" -o "./bin/program" -Wall -g
-	"./bin/program" 
-	echo "./main.c"
+	rm -f $(OUT) || true 
+	$(CC) $(SRC) -o $(OUT) $(CFLAGS)
+
+run:
+	$(OUT) 
+
+clear:
+	rm -f $(OUT) || true 
