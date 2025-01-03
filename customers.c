@@ -58,7 +58,17 @@ void displayCustomerInfo(Customer *customer) {
   printf("==============================================================================================\n\n\n");
 }
 
-void addCustomer(Customer *customers, int *CustomerNo) {
+void addCustomer(Customer *customers, int *existingCustomers) {
+
+  if (*existingCustomers >= MAX_CUSTOMERS) {
+
+    printf("==============================================================================================\n");
+    printf("=> ERROR: MAX CUSTOMERS REACHED - ABORTED\n");
+    printf("==============================================================================================\n\n\n");
+
+    return;
+  }
+
   Customer newCustomer;
   printf("==============================================================================================\n");
   printf("=> Create the customers ID number: ----------< ");
@@ -79,8 +89,9 @@ void addCustomer(Customer *customers, int *CustomerNo) {
   newCustomer.pendingCharges = 0.0;
   newCustomer.rentNo = 0;
 
-  customers[*CustomerNo] = newCustomer;
-  (*CustomerNo)++;
+  customers[*existingCustomers] = newCustomer;
+  (*existingCustomers)++;
+
   printf("==============================================================================================\n");
   printf("=> All complete, the customer has been added to the Database!\n");
   printf("==============================================================================================\n\n\n");

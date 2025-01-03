@@ -56,14 +56,14 @@ int main() {
     switch (choice) {
 
     case 1:
-      addCustomer(customers, &customerNumber);
+      addCustomer(customers, &existingCustomers);
       break;
 
     case 2: {
       int ID;
       askID(&ID);
 
-      for (int i = 0; i < customerNumber; i++) {
+      for (int i = 0; i < existingCustomers; i++) {
         if (customers[i].ID == ID) {
           rentMovie(&customers[i]);
           break;
@@ -76,7 +76,7 @@ int main() {
       int ID;
       askID(&ID);
 
-      for (int i = 0; i < customerNumber; i++) {
+      for (int i = 0; i < existingCustomers; i++) {
         if (customers[i].ID == ID) {
           returnMovie(&customers[i]);
           break;
@@ -90,7 +90,7 @@ int main() {
 
       askID(&ID);
 
-      for (int i = 0; i < customerNumber; i++) {
+      for (int i = 0; i < existingCustomers; i++) {
         if (customers[i].ID == ID) {
           displayCustomerInfo(&customers[i]);
           break;
@@ -100,7 +100,7 @@ int main() {
     }
 
     case 5:
-      listCustomers(customers, customerNumber);
+      listCustomers(customers, existingCustomers);
       break;
 
     case 6:
