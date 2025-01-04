@@ -25,7 +25,10 @@ void printCenter(char string[]) {
 }
 
 void divider() {
-  puts("=====================================================================================================");
+  for (int i = 0; i <= SCREEN_WIDTH; i++) {
+    printf("=");
+  }
+  printf("\n");
 }
 
 void chooseFromOptions(int *choice, int n, char **options) {
@@ -48,7 +51,7 @@ void chooseFromOptions(int *choice, int n, char **options) {
   }
 
   fputs("=> Enter number here: ", stdout);
-  for (int i = strlen("Enter number here:"); i < lineLen; i++) {
+  for (int i = 0; i < lineLen - 11; i++) {
     fputs("-", stdout);
   }
   fputs("< ", stdout);

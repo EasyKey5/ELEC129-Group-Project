@@ -20,6 +20,10 @@ int main() {
   printCenter("Who are you?");
   divider();
   divider();
+
+  char *testOptions[] = {"Option 1", "Option 2", "Option 3"};
+  chooseFromOptions(&choice, 3, testOptions);
+
   char *modeOptions[3] = {"For Manager", "For Registration", "For Sales Clerk"};
 
   chooseFromOptions(&choice, 3, modeOptions);
@@ -35,29 +39,25 @@ int main() {
     divider();
     divider();
 
-    printf("=> To create a new customer account enter: --< 1 \n");
-    printf("==============================================================================================\n");
-    printf("=> To rent a movie enter: -------------------< 2 \n");
-    printf("==============================================================================================\n");
-    printf("=> To return a movie enter: -----------------< 3 \n");
-    printf("==============================================================================================\n");
-    printf("=> To view customer details enter: ----------< 4 \n");
-    printf("==============================================================================================\n");
-    printf("=> To view a list of all customers enter: ---< 5 \n");
-    printf("==============================================================================================\n");
-    printf("=> To exit enter: ---------------------------< 6 \n");
-    printf("==============================================================================================\n\n");
-    printf("==============================================================================================\n");
-    printf("=> Enter number here: -----------------------< ");
-    scanf("%d", &choice);
-    printf("==============================================================================================\n\n");
-    getchar();
+    char *options[] = {
+        "To create a new customer account",
+        "To rent a movie",
+        "To return a movie",
+        "To view customer details",
+        "To view a list of all customers",
+        "To exit",
+    };
+
+    chooseFromOptions(&choice, 6, options);
+
+    divider();
 
     switch (choice) {
 
-    case 1:
+    case 1: {
       addCustomer(customers, &existingCustomers);
       break;
+    }
 
     case 2: {
       int ID;
@@ -99,20 +99,25 @@ int main() {
       break;
     }
 
-    case 5:
+    case 5: {
       listCustomers(customers, existingCustomers);
       break;
+    }
 
-    case 6:
-      printf("==============================================================================================\n");
+    case 6: {
+      divider();
       printf("Exiting program...\n");
-      printf("==============================================================================================\n\n\n");
+      divider();
+      puts("");
       break;
+    }
 
-    default:
-      printf("==============================================================================================\n");
+    default: {
+      divider();
       printf("Invalid choice. Please try again.\n");
-      printf("==============================================================================================\n\n\n");
+      divider();
+      puts("");
+    }
     }
   } while (choice != 6);
 
