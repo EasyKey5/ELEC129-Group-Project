@@ -11,78 +11,81 @@ void askID(int *id) {
 
 void listCustomers(Customer *customers, int CustomerNo) {
   if (CustomerNo == 0) {
-    printf("==============================================================================================\n");
+    divider();
     printf("=> No customers recorded on the system.\n");
-    printf("==============================================================================================\n\n\n");
+    divider();
     return;
   }
-  printf("==============================================================================================\n");
+  divider();
   printf("=> List of all customers recorded on the system:\n");
-  printf("==============================================================================================\n");
+  divider();
   for (int i = 0; i < CustomerNo; i++) {
     printf("=> ID Number: %d, Name: %s\n", customers[i].ID, customers[i].name);
   }
-  printf("==============================================================================================\n\n\n");
+  divider();
+  fputs("\n\n", stdout);
 }
 
 void displayCustomerInfo(Customer *customer) {
 
-  printf("==============================================================================================\n");
+  divider();
   printf("=> Customer information: \n");
-  printf("==============================================================================================\n");
-  printf("=> ID Number: -------------------------------< %d\n", customer->ID);
-  printf("==============================================================================================\n");
-  printf("=> Name: ------------------------------------< %s\n", customer->name);
-  printf("==============================================================================================\n");
-  printf("=> Mobile phone number: ---------------------< %s\n", customer->phone);
-  printf("==============================================================================================\n");
-  printf("=> Address: ---------------------------------< %s\n", customer->address);
-  printf("==============================================================================================\n");
-  printf("=> Pending Charges: -------------------------< $%.2f\n", customer->pendingCharges);
-  printf("==============================================================================================\n");
+  divider();
+  printf("=> ID Number: ------------< %d\n", customer->ID);
+  divider();
+  printf("=> Name: -----------------< %s\n", customer->name);
+  divider();
+  printf("=> Mobile phone number: --< %s\n", customer->phone);
+  divider();
+  printf("=> Address: --------------< %s\n", customer->address);
+  divider();
+  printf("=> Pending Charges: ------< $%.2f\n", customer->pendingCharges);
+  divider();
   if (customer->rentNo > 0) {
 
-    printf("==============================================================================================\n");
+    divider();
     printf("=> Customer Rental History:\n");
 
     for (int i = 0; i < customer->rentNo; i++) {
-      printf("==============================================================================================\n");
+      divider();
       printf("=> -----------------------< %d. %s (Rented movie(s) for: %d days)\n", i + 1, customer->rentHistory[i].Movie, customer->rentHistory[i].rentTime);
     }
 
   } else {
-    printf("==============================================================================================\n");
+    divider();
     printf("=> Customer has not rented any movies yet.\n");
-    printf("==============================================================================================\n\n\n");
+    divider();
   }
-  printf("==============================================================================================\n\n\n");
+  divider();
+  fputs("\n\n", stdout);
 }
 
 void addCustomer(Customer *customers, int *existingCustomers) {
 
   if (*existingCustomers >= MAX_CUSTOMERS) {
 
-    printf("==============================================================================================\n");
+    divider();
     printf("=> ERROR: MAX CUSTOMERS REACHED - ABORTED\n");
-    printf("==============================================================================================\n\n\n");
+    divider();
+    fputs("\n\n", stdout);
 
     return;
   }
 
   Customer newCustomer;
-  printf("==============================================================================================\n");
+  divider();
   printf("=> Create the customers ID number: ----------< ");
   scanf("%d", &newCustomer.ID);
-  printf("==============================================================================================\n");
+  divider();
   getchar();
   printf("=> What is their full name?: ----------------< ");
   fgets(newCustomer.name, sizeof(newCustomer.name), stdin);
   newCustomer.name[strcspn(newCustomer.name, "\n")] = 0;
-  printf("==============================================================================================\n");
+  divider();
   printf("=> What is their mobile phone number?: ------< ");
   fgets(newCustomer.phone, sizeof(newCustomer.phone), stdin);
   newCustomer.phone[strcspn(newCustomer.phone, "\n")] = 0;
-  printf("==============================================================================================\n");
+  divider();
   printf("=> What is their address?: ------------------< ");
   fgets(newCustomer.address, sizeof(newCustomer.address), stdin);
   newCustomer.address[strcspn(newCustomer.address, "\n")] = 0;
@@ -92,7 +95,8 @@ void addCustomer(Customer *customers, int *existingCustomers) {
   customers[*existingCustomers] = newCustomer;
   (*existingCustomers)++;
 
-  printf("==============================================================================================\n");
+  divider();
   printf("=> All complete, the customer has been added to the Database!\n");
-  printf("==============================================================================================\n\n\n");
+  divider();
+  fputs("\n\n", stdout);
 }
