@@ -1,5 +1,5 @@
 CC = gcc
-FLAGS = -Wall -g
+CFLAGS = -Wall -g -O0
 SRC = $(wildcard src/*.c)
 OUT = "./bin/program"
 
@@ -11,7 +11,7 @@ all:
 build:
 	mkdir -p "./bin/"
 	rm -f $(OUT) || true 
-	$(CC) $(SRC) -o $(OUT) $(CFLAGS)
+	$(CC) $(SRC) $(CFLAGS) -o $(OUT)
 
 run:
 	$(OUT) 
