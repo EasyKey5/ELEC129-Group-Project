@@ -3,6 +3,29 @@
 
 #include "lib.h"
 
+void retrieveMovies(Movie *allMovies, int *nMovies) {
+}
+
+void saveMovie(Movie movie) {
+  puts("=> Saving movie ...");
+}
+
+Genre pickGenre() {
+  char *options[6] = {
+      "For Action",
+      "For Comedy",
+      "For Horror",
+      "For Musical",
+      "For Romance",
+      "For SciFi",
+  };
+
+  int choice;
+  chooseFromOptions(&choice, 6, options);
+
+  return choice - 1;
+}
+
 void returnMovie(Customer *customer) {
   if (customer->rentNo == 0) {
     printf("==============================================================================================\n");
@@ -10,7 +33,6 @@ void returnMovie(Customer *customer) {
     printf("==============================================================================================\n\n\n");
     return;
   }
-  // prin("=> To exit enter: ---------------------------< 6 \n");
   printf("==============================================================================================\n");
   printf("=> Customer is currently renting the following movies:\n");
   for (int i = 0; i < customer->rentNo; i++) {
