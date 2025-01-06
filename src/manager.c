@@ -126,6 +126,38 @@ void managementConsole() {
       break;
     }
 
+  case 3:
+    { // Alter a movie
+
+      divider();
+      printf("=> Enter the title of the movie you would like to alter: --< ");
+      char query[MAX_MOVIE_NAME_LENGTH];
+      scanf("%[^\n]", query);
+
+      int count = 5;
+
+      // DO NOT USE THIS VARIABLE IF SEARCH FAILS
+      Movie *results = searchMoviesByTitle(query, &count);
+      if (results) {
+        if (count < 0) {
+          fprintf(stderr, "=> ERROR: Unknown search error\n");
+        } else if (count == 1) {
+          alterMovie(results->id);
+        } else { // Multiple results, select one
+
+          printf("=> Multiple films found:\n");
+          for (int i = 0; i < count; i++) {
+            printMovie(results[i]);
+            printf("\n");
+          }
+          printf("=> Enter the id of the movie you would like to alter: --< ");
+          int id;
+          scanf("%u", &id);
+          printf("\n");
+          alterMovie(id);
+        }
+        free(results);
+      }
     }
   }
 }

@@ -79,6 +79,7 @@ void deleteMovie(int id);
 
 void printMovie(Movie movie);
 Genre pickGenre();
+void alterMovie(int id);
 void rentMovie(Customer *customer);
 void returnMovie(Customer *customer);
 void saveMovie(Movie movie);

@@ -67,8 +67,72 @@ Movie *getMovieByID(int id) {
   return movie;
 };
 
+void alterMovie(int id) {
+  Movie *movie = getMovieByID(id);
+  if (movie) {
 
-  return 1;
+    char *alterOptions[] = {
+        "To edit the title",
+        "To edit the actors",
+        "To edit the copies",
+        "To change the genre"
+
+    };
+    int choice = chooseFromOptions(4, alterOptions);
+
+    divider();
+
+    switch (choice) {
+    case 1: // title
+      {
+        printf("=> Enter the new title: --< ");
+        scanf("%[^\n]", movie->title);
+        break;
+      }
+
+    case 2: // actors
+      {
+        printf("=> Enter the names of the actors or \"q\" to finish\n");
+        char input[MAX_ACTOR_NAME_LENGTH] = "";
+
+        for (movie->nActors = 0; movie->nActors < MAX_ACTORS; movie->nActors++) {
+          if (!strcmp(input, "q")) // strings are equal
+            break;
+
+          printf("=> Enter actor %u: --< ", movie->nActors + 1);
+          scanf("%[^\n]", input);
+          getchar();
+
+          movie->actors[movie->nActors] = input;
+        }
+        break;
+      }
+
+    case 3: // copies
+      {
+        printf("=> Enter the number of VHS copies: ------< ");
+        scanf("%u", &movie->copies.vhs);
+        getchar();
+
+        printf("=> Enter the number of dvd copies: ------< ");
+        scanf("%u", &movie->copies.dvd);
+        getchar();
+
+        printf("=> Enter the number of BlueRay copies: --< ");
+        scanf("%u", &movie->copies.blueRay);
+        getchar();
+        break;
+      }
+
+    case 4: // genre
+      {
+        movie->genre = pickGenre();
+        break;
+      }
+    }
+    saveMovie(*movie);
+    free(movie);
+  }
 }
 
 // TODO: Implement
@@ -95,8 +159,7 @@ Genre pickGenre() {
       "For SciFi",
   };
 
-  int choice =
-      chooseFromOptions(6, options);
+  int choice = chooseFromOptions(6, options);
 
   return choice - 1;
 }
@@ -110,7 +173,6 @@ void returnMovie(Customer *customer) {
     puts("\n");
     return;
   }
-
   divider();
   printf("=> Customer is currently renting the following movies:\n");
   for (int i = 0; i < customer->rentNo; i++) {
