@@ -15,15 +15,13 @@ void managementConsole() {
 
   retrieveMovies(allMovies, &existingMovies);
 
-  int choice;
-  choice = 0;
   char *options[] = {
       "To add a new movie",
       "To delete a movie",
       "To alter a movie",
       "To alter charges"};
 
-  chooseFromOptions(&choice, 4, options);
+  int choice = chooseFromOptions(4, options);
 
   divider();
 

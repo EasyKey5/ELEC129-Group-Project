@@ -8,7 +8,6 @@ int main() {
 
   Customer customers[50];
   int existingCustomers = 0;
-  int choice;
 
   divider();
   printCenter("Welcome back to the");
@@ -19,7 +18,7 @@ int main() {
 
   char *modeOptions[3] = {"For Manager", "For Registration", "For Sales Clerk"};
 
-  chooseFromOptions(&choice, 3, modeOptions);
+  int choice = chooseFromOptions(3, modeOptions);
 
   switch (choice) {
 
@@ -54,7 +53,7 @@ int main() {
         "To exit",
     };
 
-    chooseFromOptions(&choice, 6, options);
+    choice = chooseFromOptions(6, options);
 
     divider();
 

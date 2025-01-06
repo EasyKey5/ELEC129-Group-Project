@@ -66,8 +66,8 @@ Genre pickGenre() {
       "For SciFi",
   };
 
-  int choice;
-  chooseFromOptions(&choice, 6, options);
+  int choice =
+      chooseFromOptions(6, options);
 
   return choice - 1;
 }

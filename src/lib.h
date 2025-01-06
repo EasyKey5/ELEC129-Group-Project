@@ -54,7 +54,7 @@ typedef struct Customer {
 // Utils
 void printCenter(char string[]);
 void divider();
-void chooseFromOptions(int *choice, int n, char **options);
+int chooseFromOptions(int n, char **options);
 
 // Customers
 void askID(int *id);
