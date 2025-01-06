@@ -31,7 +31,7 @@ void divider() {
   printf("\n");
 }
 
-void chooseFromOptions(int *choice, int n, char **options) {
+int chooseFromOptions(int n, char **options) {
   int lineLen = strlen("Enter number here: ");
 
   for (int i = 0; i < n; i++) {
@@ -55,6 +55,27 @@ void chooseFromOptions(int *choice, int n, char **options) {
     fputs("-", stdout);
   }
   fputs("< ", stdout);
-  scanf("%u", choice);
+  int choice;
+  scanf("%i", &choice);
   getchar();
+
+  return choice;
+}
+
+char *getGenreName(Genre genre) {
+
+  switch (genre) {
+  case Action:
+    return "Action";
+  case Romance:
+    return "Romance";
+  case Comedy:
+    return "Comedy";
+  case Horror:
+    return "Horror";
+  case SciFi:
+    return "SciFi";
+  case Musical:
+    return "Musical";
+  }
 }

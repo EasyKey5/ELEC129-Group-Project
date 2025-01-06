@@ -8,25 +8,30 @@ int main() {
 
   Customer customers[50];
   int existingCustomers = 0;
-  int choice;
-
-  puts("");
 
   divider();
-  printCenter("12");
-  printCenter("123");
   printCenter("Welcome back to the");
   printCenter("Snazzy Video Rental System!");
   printCenter("Who are you?");
   divider();
   divider();
 
-  char *testOptions[] = {"Option 1", "Option 2", "Option 3"};
-  chooseFromOptions(&choice, 3, testOptions);
-
   char *modeOptions[3] = {"For Manager", "For Registration", "For Sales Clerk"};
 
-  chooseFromOptions(&choice, 3, modeOptions);
+  int choice = chooseFromOptions(3, modeOptions);
+
+  switch (choice) {
+
+  case 1:
+    {
+      managementConsole();
+    }
+
+  default:
+    {
+    }
+  }
+
   do {
     divider();
     divider();
@@ -48,76 +53,86 @@ int main() {
         "To exit",
     };
 
-    chooseFromOptions(&choice, 6, options);
+    choice = chooseFromOptions(6, options);
+
 
     divider();
 
     switch (choice) {
 
-    case 1: {
-      addCustomer(customers, &existingCustomers);
-      break;
-    }
 
-    case 2: {
-      int ID;
-      askID(&ID);
-
-      for (int i = 0; i < existingCustomers; i++) {
-        if (customers[i].ID == ID) {
-          rentMovie(&customers[i]);
-          break;
-        }
+    case 1:
+      {
+        addCustomer(customers, &existingCustomers);
+        break;
       }
-      break;
-    }
 
-    case 3: {
-      int ID;
-      askID(&ID);
+    case 2:
+      {
+        int ID;
+        askID(&ID);
 
-      for (int i = 0; i < existingCustomers; i++) {
-        if (customers[i].ID == ID) {
-          returnMovie(&customers[i]);
-          break;
+        for (int i = 0; i < existingCustomers; i++) {
+          if (customers[i].ID == ID) {
+            rentMovie(&customers[i]);
+            break;
+          }
         }
+        break;
       }
-      break;
-    }
 
-    case 4: {
-      int ID;
+    case 3:
+      {
+        int ID;
+        askID(&ID);
 
-      askID(&ID);
-
-      for (int i = 0; i < existingCustomers; i++) {
-        if (customers[i].ID == ID) {
-          displayCustomerInfo(&customers[i]);
-          break;
+        for (int i = 0; i < existingCustomers; i++) {
+          if (customers[i].ID == ID) {
+            returnMovie(&customers[i]);
+            break;
+          }
         }
+        break;
       }
-      break;
-    }
 
-    case 5: {
-      listCustomers(customers, existingCustomers);
-      break;
-    }
+    case 4:
+      {
+        int ID;
 
-    case 6: {
-      divider();
-      printf("Exiting program...\n");
-      divider();
-      puts("");
-      break;
-    }
+        askID(&ID);
 
-    default: {
-      divider();
-      printf("Invalid choice. Please try again.\n");
-      divider();
-      puts("");
-    }
+        for (int i = 0; i < existingCustomers; i++) {
+          if (customers[i].ID == ID) {
+            displayCustomerInfo(&customers[i]);
+            break;
+          }
+        }
+        break;
+      }
+
+    case 5:
+      {
+        listCustomers(customers, existingCustomers);
+        break;
+      }
+
+    case 6:
+      {
+        divider();
+        printf("Exiting program...\n");
+        divider();
+        puts("");
+        break;
+      }
+
+    default:
+      {
+        divider();
+        printf("Invalid choice. Please try again.\n");
+        divider();
+        puts("");
+      }
+
     }
   } while (choice != 6);
 

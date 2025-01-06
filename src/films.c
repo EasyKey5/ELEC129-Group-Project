@@ -3,6 +3,76 @@
 
 #include "lib.h"
 
+void printMovie(Movie movie) {
+
+  printf("=> Title: %s\n", movie.title);
+  printf("=> ID: %i\n", movie.id);
+  printf("=> Genre: %s\n", getGenreName(movie.genre));
+  printf("=> Actors:\n");
+  for (int i = 0; i < movie.nActors; i++) {
+    printf("===> %s\n", movie.actors[i]);
+  }
+  printf("=> Copies:\n");
+  printf("===> DVD: %i\n", movie.copies.dvd);
+  printf("===> VHS: %i\n", movie.copies.vhs);
+  printf("===> BlueRay: %i\n", movie.copies.blueRay);
+}
+
+/// TODO: Implement proper search function
+///
+/// Returns the number of results and points `result` to
+/// the first one (if there are any).
+///
+/// SAFETY: If no results are found, `result` is uninitialised
+/// ERRORS: Any errors will be caught and return a negative number
+///         (This must be checked and guarded by the caller)
+int searchMoviesByTitle(char *query, Movie *result) {
+
+  Movie movie =
+      (Movie){
+          .id = 1,
+          .title = "Jumanji: Welcome to the jungle",
+          .actors = {"Dwayne Johnson", "Jack Black", "Kevin Hart"},
+          .nActors = 3,
+          .genre = Action,
+          .copies = (Copies){.dvd = 3, .vhs = 1, .blueRay = 5}};
+
+  result[0] = movie;
+
+  return 1;
+}
+
+// TODO: Implement
+void deleteMovie(int id) {
+  printf("=> Deleted movie %u\n", id);
+}
+
+// TODO: Implement
+void retrieveMovies(Movie *allMovies, int *nMovies) {
+}
+
+// TODO: Implement
+void saveMovie(Movie movie) {
+  puts("=> Saving movie ...");
+}
+
+Genre pickGenre() {
+  char *options[6] = {
+      "For Action",
+      "For Comedy",
+      "For Horror",
+      "For Musical",
+      "For Romance",
+      "For SciFi",
+  };
+
+  int choice =
+      chooseFromOptions(6, options);
+
+  return choice - 1;
+}
+
+// TODO: alter implementation to use `Movie` type
 void returnMovie(Customer *customer) {
   if (customer->rentNo == 0) {
     divider();
@@ -11,7 +81,7 @@ void returnMovie(Customer *customer) {
     puts("\n");
     return;
   }
-  // prin("=> To exit enter: ---------------------------< 6 \n");
+
   divider();
   printf("=> Customer is currently renting the following movies:\n");
   for (int i = 0; i < customer->rentNo; i++) {
@@ -47,6 +117,7 @@ void returnMovie(Customer *customer) {
   puts("\n");
 }
 
+// TODO: alter implementation to use `Movie` type
 void rentMovie(Customer *customer) {
   if (customer->rentNo >= MAX_RENTALS) {
     divider();
