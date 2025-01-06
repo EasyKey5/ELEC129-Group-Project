@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "lib.h"
@@ -77,56 +78,54 @@ void managementConsole() {
 
       printf("=> Enter the name of the movie which you would like to delete: --< ");
 
-      Movie movieResults[5];
       scanf("%[^\n]", title);
 
       if (strcmp(title, "q") == 0)
         break;
 
-      int nResults = searchMoviesByTitle(title, movieResults);
+      int count = 5;
+      Movie *movieResults = searchMoviesByTitle(title, &count);
 
-      if (nResults == 1) { // only one result found
+      if (movieResults) {
+        if (count == 1) { // only one result found
 
-        printf("=> Movie Found:\n\n");
-        printMovie(movieResults[0]);
-        printf("\n=> Delete this movie [y/n]: --< ");
-        char answer[10] = "";
-        scanf("%s", answer);
-        if (strcmp(answer, "y") == 0)
-          deleteMovie(movieResults->id);
-        break;
-      } else if (nResults > 1) { // many results
+          printf("=> Movie Found:\n\n");
+          printMovie(movieResults[0]);
+          printf("\n=> Delete this movie [y/n]: --< ");
+          char answer[10] = "";
+          scanf("%s", answer);
+          if (strcmp(answer, "y") == 0)
+            deleteMovie(movieResults->id);
+          break;
+        } else if (count > 1) { // many results
 
-        printf("=> %u results found: \n", nResults);
-        for (int i = 0; i < nResults - 1; i++) {
+          printf("=> %u results found: \n", count);
+          for (int i = 0; i < count - 1; i++) {
+            divider();
+            printf("=> Movie %u:\n\n", i + 1);
+            printMovie(movieResults[i]);
+          }
           divider();
-          printf("=> Movie %u:\n\n", i + 1);
-          printMovie(movieResults[i]);
+          int id;
+          printf("=> Enter the id of the movie you would like to delete: --< ");
+          scanf("%u", &id);
+          deleteMovie(id);
+          break;
+        } else if (count == 0) { // No results
+
+          printf("=> No results found, please type the title again: --< ");
+        } else { // UNKNOWN ERROR: results < 0
+
+          fprintf(stderr, "=> ERROR: Search failed returning %i\n", count);
+          break;
         }
-        divider();
-        int id;
-        printf("=> Enter the id of the movie you would like to delete: --< ");
-        scanf("%u", &id);
-        deleteMovie(id);
-        break;
-      } else if (nResults == 0) { // No results
-
-        printf("=> No results found, please type the title again: --< ");
-
-      } else { // UNKNOWN ERROR: results < 0
-
-        fprintf(stderr, "=> ERROR: Search failed returning %i\n", nResults);
-        break;
+        free(movieResults);
       }
 
       divider();
       break;
     }
 
-  default:
-    {
-      printf("=> Invalid choice, please try again\n");
-      break;
     }
   }
 }

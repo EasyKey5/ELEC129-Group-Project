@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "lib.h"
@@ -20,15 +21,17 @@ void printMovie(Movie movie) {
 
 /// TODO: Implement proper search function
 ///
-/// Returns the number of results and points `result` to
-/// the first one (if there are any).
+/// Returns a pointer to the first `count` movies
 ///
-/// SAFETY: If no results are found, `result` is uninitialised
-/// ERRORS: Any errors will be caught and return a negative number
-///         (This must be checked and guarded by the caller)
-int searchMoviesByTitle(char *query, Movie *result) {
-
-  Movie movie =
+/// Sets count to the number of results
+///
+/// If an error occurs, sets count to -1
+///
+/// ALWAYS CHECK FOR NULL
+/// REMEMBER TO `free(movie)` when finished
+Movie *searchMoviesByTitle(char *query, int *count) {
+  Movie *movie = malloc(sizeof(Movie) * *count);
+  *movie =
       (Movie){
           .id = 1,
           .title = "Jumanji: Welcome to the jungle",
@@ -37,7 +40,33 @@ int searchMoviesByTitle(char *query, Movie *result) {
           .genre = Action,
           .copies = (Copies){.dvd = 3, .vhs = 1, .blueRay = 5}};
 
-  result[0] = movie;
+  // simulating only one result
+  *count = 1;
+  movie = realloc(movie, sizeof(Movie) * *count);
+
+  return movie;
+}
+
+// TODO: IMPLEMENT
+///
+/// Returns a reference to the movie struct
+/// If movie doesn't exist, pointer is null
+///
+/// ALWAYS CHECK FOR NULL
+Movie *getMovieByID(int id) {
+  Movie *movie = malloc(sizeof(Movie));
+  *movie =
+      (Movie){
+          .id = 1,
+          .title = "Jumanji: Welcome to the jungle",
+          .actors = {"Dwayne Johnson", "Jack Black", "Kevin Hart"},
+          .nActors = 3,
+          .genre = Action,
+          .copies = (Copies){.dvd = 3, .vhs = 1, .blueRay = 5}};
+
+  return movie;
+};
+
 
   return 1;
 }

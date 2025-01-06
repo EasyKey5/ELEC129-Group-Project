@@ -69,8 +69,11 @@ char *getGenreName(Genre genre);
 // sets nMovies to number of movies and points allMovies to the first
 void retrieveMovies(Movie *allMovies, int *nMovies);
 
-// returns the number of results or -1 for error
-int searchMoviesByTitle(char *query, Movie *result);
+/// searches for the first `count` movies
+///
+/// returns a pointer to the movie and sets `count` to the number of results
+Movie *searchMoviesByTitle(char *query, int *count);
+Movie *searchMoviesByID(int id);
 
 void deleteMovie(int id);
 
