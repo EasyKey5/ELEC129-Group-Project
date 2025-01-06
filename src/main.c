@@ -55,9 +55,11 @@ int main() {
 
     choice = chooseFromOptions(6, options);
 
+
     divider();
 
     switch (choice) {
+
 
     case 1:
       {
@@ -130,6 +132,7 @@ int main() {
         divider();
         puts("");
       }
+
     }
   } while (choice != 6);
 

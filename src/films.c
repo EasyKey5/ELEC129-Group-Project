@@ -81,6 +81,7 @@ void returnMovie(Customer *customer) {
     puts("\n");
     return;
   }
+
   divider();
   printf("=> Customer is currently renting the following movies:\n");
   for (int i = 0; i < customer->rentNo; i++) {
