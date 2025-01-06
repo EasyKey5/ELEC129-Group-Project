@@ -58,3 +58,21 @@ void chooseFromOptions(int *choice, int n, char **options) {
   scanf("%u", choice);
   getchar();
 }
+
+char *getGenreName(Genre genre) {
+
+  switch (genre) {
+  case Action:
+    return "Action";
+  case Romance:
+    return "Romance";
+  case Comedy:
+    return "Comedy";
+  case Horror:
+    return "Horror";
+  case SciFi:
+    return "SciFi";
+  case Musical:
+    return "Musical";
+  }
+}

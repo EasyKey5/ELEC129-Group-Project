@@ -3,6 +3,41 @@
 
 #include "lib.h"
 
+void printMovie(Movie movie) {
+
+  printf("=> Title: %s\n", movie.title);
+  printf("=> ID: %i\n", movie.id);
+  printf("=> Genre: %s\n", getGenreName(movie.genre));
+  printf("=> Actors:\n");
+  for (int i = 0; i < movie.nActors; i++) {
+    printf("===> %s\n", movie.actors[i]);
+  }
+  printf("=> Copies:\n");
+  printf("===> DVD: %i\n", movie.copies.dvd);
+  printf("===> VHS: %i\n", movie.copies.vhs);
+  printf("===> BlueRay: %i\n", movie.copies.blueRay);
+}
+
+int searchMoviesByTitle(char *query, Movie *result) {
+
+  Movie movie =
+      (Movie){
+          .id = 1,
+          .title = "Jumanji: Welcome to the jungle",
+          .actors = {"Dwayne Johnson", "Jack Black", "Kevin Hart"},
+          .nActors = 3,
+          .genre = Action,
+          .copies = (Copies){.dvd = 3, .vhs = 1, .blueRay = 5}};
+
+  result[0] = movie;
+
+  return 1;
+}
+
+void deleteMovie(int id) {
+  printf("=> Deleted movie %u\n", id);
+}
+
 void retrieveMovies(Movie *allMovies, int *nMovies) {
 }
 

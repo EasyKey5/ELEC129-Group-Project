@@ -62,12 +62,19 @@ void addCustomer(Customer *customers, int *CustomerNo);
 void displayCustomerInfo(Customer *customer);
 void listCustomers(Customer *customers, int CustomerNo);
 Customer searchCustomers(int id);
+char *getGenreName(Genre genre);
 
 // Movies
 
 // sets nMovies to number of movies and points allMovies to the first
 void retrieveMovies(Movie *allMovies, int *nMovies);
 
+// returns the number of results or -1 for error
+int searchMoviesByTitle(char *query, Movie *result);
+
+void deleteMovie(int id);
+
+void printMovie(Movie movie);
 Genre pickGenre();
 void rentMovie(Customer *customer);
 void returnMovie(Customer *customer);

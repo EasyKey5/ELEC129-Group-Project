@@ -17,9 +17,6 @@ int main() {
   divider();
   divider();
 
-  char *testOptions[] = {"Option 1", "Option 2", "Option 3"};
-  chooseFromOptions(&choice, 3, testOptions);
-
   char *modeOptions[3] = {"For Manager", "For Registration", "For Sales Clerk"};
 
   chooseFromOptions(&choice, 3, modeOptions);
@@ -63,10 +60,11 @@ int main() {
 
     switch (choice) {
 
-    case 1: {
-      addCustomer(customers, &existingCustomers);
-      break;
-    }
+    case 1:
+      {
+        addCustomer(customers, &existingCustomers);
+        break;
+      }
 
     case 2:
       {
@@ -111,25 +109,28 @@ int main() {
         break;
       }
 
-    case 5: {
-      listCustomers(customers, existingCustomers);
-      break;
-    }
+    case 5:
+      {
+        listCustomers(customers, existingCustomers);
+        break;
+      }
 
-    case 6: {
-      divider();
-      printf("Exiting program...\n");
-      divider();
-      puts("");
-      break;
-    }
+    case 6:
+      {
+        divider();
+        printf("Exiting program...\n");
+        divider();
+        puts("");
+        break;
+      }
 
-    default: {
-      divider();
-      printf("Invalid choice. Please try again.\n");
-      divider();
-      puts("");
-    }
+    default:
+      {
+        divider();
+        printf("Invalid choice. Please try again.\n");
+        divider();
+        puts("");
+      }
     }
   } while (choice != 6);
 
