@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "lib.h"
@@ -20,15 +21,17 @@ void printMovie(Movie movie) {
 
 /// TODO: Implement proper search function
 ///
-/// Returns the number of results and points `result` to
-/// the first one (if there are any).
+/// Returns a pointer to the first `count` movies
 ///
-/// SAFETY: If no results are found, `result` is uninitialised
-/// ERRORS: Any errors will be caught and return a negative number
-///         (This must be checked and guarded by the caller)
-int searchMoviesByTitle(char *query, Movie *result) {
-
-  Movie movie =
+/// Sets count to the number of results
+///
+/// If an error occurs, sets count to -1
+///
+/// ALWAYS CHECK FOR NULL
+/// REMEMBER TO `free(movie)` when finished
+Movie *searchMoviesByTitle(char *query, int *count) {
+  Movie *movie = malloc(sizeof(Movie) * *count);
+  *movie =
       (Movie){
           .id = 1,
           .title = "Jumanji: Welcome to the jungle",
@@ -37,9 +40,99 @@ int searchMoviesByTitle(char *query, Movie *result) {
           .genre = Action,
           .copies = (Copies){.dvd = 3, .vhs = 1, .blueRay = 5}};
 
-  result[0] = movie;
+  // simulating only one result
+  *count = 1;
+  movie = realloc(movie, sizeof(Movie) * *count);
 
-  return 1;
+  return movie;
+}
+
+// TODO: IMPLEMENT
+///
+/// Returns a reference to the movie struct
+/// If movie doesn't exist, pointer is null
+///
+/// ALWAYS CHECK FOR NULL
+Movie *getMovieByID(int id) {
+  Movie *movie = malloc(sizeof(Movie));
+  *movie =
+      (Movie){
+          .id = 1,
+          .title = "Jumanji: Welcome to the jungle",
+          .actors = {"Dwayne Johnson", "Jack Black", "Kevin Hart"},
+          .nActors = 3,
+          .genre = Action,
+          .copies = (Copies){.dvd = 3, .vhs = 1, .blueRay = 5}};
+
+  return movie;
+};
+
+void alterMovie(int id) {
+  Movie *movie = getMovieByID(id);
+  if (movie) {
+
+    char *alterOptions[] = {
+        "To edit the title",
+        "To edit the actors",
+        "To edit the copies",
+        "To change the genre"
+
+    };
+    int choice = chooseFromOptions(4, alterOptions);
+
+    divider();
+
+    switch (choice) {
+    case 1: // title
+      {
+        printf("=> Enter the new title: --< ");
+        scanf("%[^\n]", movie->title);
+        break;
+      }
+
+    case 2: // actors
+      {
+        printf("=> Enter the names of the actors or \"q\" to finish\n");
+        char input[MAX_ACTOR_NAME_LENGTH] = "";
+
+        for (movie->nActors = 0; movie->nActors < MAX_ACTORS; movie->nActors++) {
+          if (!strcmp(input, "q")) // strings are equal
+            break;
+
+          printf("=> Enter actor %u: --< ", movie->nActors + 1);
+          scanf("%[^\n]", input);
+          getchar();
+
+          movie->actors[movie->nActors] = input;
+        }
+        break;
+      }
+
+    case 3: // copies
+      {
+        printf("=> Enter the number of VHS copies: ------< ");
+        scanf("%u", &movie->copies.vhs);
+        getchar();
+
+        printf("=> Enter the number of dvd copies: ------< ");
+        scanf("%u", &movie->copies.dvd);
+        getchar();
+
+        printf("=> Enter the number of BlueRay copies: --< ");
+        scanf("%u", &movie->copies.blueRay);
+        getchar();
+        break;
+      }
+
+    case 4: // genre
+      {
+        movie->genre = pickGenre();
+        break;
+      }
+    }
+    saveMovie(*movie);
+    free(movie);
+  }
 }
 
 // TODO: Implement
@@ -66,8 +159,7 @@ Genre pickGenre() {
       "For SciFi",
   };
 
-  int choice =
-      chooseFromOptions(6, options);
+  int choice = chooseFromOptions(6, options);
 
   return choice - 1;
 }
@@ -81,7 +173,6 @@ void returnMovie(Customer *customer) {
     puts("\n");
     return;
   }
-
   divider();
   printf("=> Customer is currently renting the following movies:\n");
   for (int i = 0; i < customer->rentNo; i++) {
