@@ -25,10 +25,24 @@ int main() {
   case 1:
     {
       managementConsole();
+      break;
     }
 
+  case 2:
+    {
+      registrationDesk();
+      break;
+    }
+
+  case 3:
+    {
+      rentalDesk();
+      break;
+    }
   default:
     {
+      printf("Invalid input, exiting");
+      return 1;
     }
   }
 
@@ -55,11 +69,9 @@ int main() {
 
     choice = chooseFromOptions(6, options);
 
-
     divider();
 
     switch (choice) {
-
 
     case 1:
       {
@@ -132,7 +144,6 @@ int main() {
         divider();
         puts("");
       }
-
     }
   } while (choice != 6);
 
