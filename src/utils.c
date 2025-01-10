@@ -31,6 +31,18 @@ void divider() {
   printf("\n");
 }
 
+/*
+ * Provide the number of options, followed by a
+ * pointer to a list of strings (char *options[]).
+ * The text 'enter: <number>' will be appended to
+ * the option when printed
+ *
+ * EXAMPLE:
+ *
+ * char *options[] = { "For Option 1", "For Option 2", "For Option 3" };
+ *
+ * int choice = chooseFromOptions(3, options);
+ */
 int chooseFromOptions(int n, char **options) {
   int lineLen = strlen("Enter number here: ");
 

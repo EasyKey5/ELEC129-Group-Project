@@ -36,6 +36,7 @@ typedef struct Movie {
 
 } Movie;
 
+// TODO: Change API to use `Movie` type
 typedef struct Rent {
   char Movie[MAX_MOVIE_NAME_LENGTH];
   int rentTime;
