@@ -142,7 +142,7 @@ void deleteMovie(int id) {
 
 // TODO: Implement
 void retrieveMovies(Movie *allMovies, int *nMovies) {
-  FILE *text_file = fopen("movieD.dat", "wb");
+  FILE *text_file = fopen("movieD.dat", "rb");
 
   if (text_file == NULL) {
     printf("Could not locate file\n");
@@ -152,10 +152,9 @@ void retrieveMovies(Movie *allMovies, int *nMovies) {
   // fwrite(&cusName, sizeof(int), 1, text_file);
   *nMovies = 0;
   while (!feof(text_file)) {
-    fread(&(Movie)allMovies[*nMovies], sizeof(Movie), 1, text_file);
-    printf("a[%d]", *allMovies, *nMovies);
+    fread(&allMovies[*nMovies], sizeof(Movie), 1, text_file);
+    printMovie(allMovies[*nMovies]);
   }
-  printMovie(*allMovies);
   fclose(text_file);
 }
 
@@ -170,6 +169,10 @@ void saveMovie(Movie movie) {
   allMovies[nMovies] = movie;
 
   FILE *file = fopen("movieD.dat", "wb");
+
+  if (file == NULL) {
+    printf("FIle not found");
+  }
 
   fwrite(allMovies, sizeof(Movie), nMovies, file);
 
