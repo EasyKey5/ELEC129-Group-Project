@@ -142,42 +142,39 @@ void deleteMovie(int id) {
 
 // TODO: Implement
 void retrieveMovies(Movie *allMovies, int *nMovies) {
-  FILE* text_file = fopen("movieD.dat", "wb");
+  FILE *text_file = fopen("movieD.dat", "wb");
 
-    if (text_file == NULL) {
-        printf("Could not locate file\n");
-        exit(-1);
-    }
+  if (text_file == NULL) {
+    printf("Could not locate file\n");
+    exit(-1);
+  }
 
-    //fwrite(&cusName, sizeof(int), 1, text_file);
-    *nMovies = 0;
-    while(!feof(text_file)){
-      fread(&(Movie)allMovies[*nMovies], sizeof(Movie), 1, text_file);
-      printf("a[%d]", *allMovies, *nMovies);
-    }
-    printMovie (*allMovies);
-    fclose (text_file);
-
+  // fwrite(&cusName, sizeof(int), 1, text_file);
+  *nMovies = 0;
+  while (!feof(text_file)) {
+    fread(&(Movie)allMovies[*nMovies], sizeof(Movie), 1, text_file);
+    printf("a[%d]", *allMovies, *nMovies);
+  }
+  printMovie(*allMovies);
+  fclose(text_file);
 }
 
 // TODO: Implement
 void saveMovie(Movie movie) {
-  puts("=> Saving movie ...");
-    FILE* text_file = fopen("movieD.dat", "wb");
 
-    if (text_file == NULL) {
-        printf("Could not locate file\n");
-        exit(-1);
-    }
+  // TODO: INCREASE SIZE (use malloc)
+  int nMovies;
+  Movie allMovies[100];
 
-    //fwrite(&cusName, sizeof(int), 1, text_file);
-    fwrite(movie, sizeof(Movie) * *movie, 1, text_file);
+  retrieveMovies(allMovies, &nMovies);
+  allMovies[nMovies] = movie;
 
-    printf("%d\n", movie);
-    fclose (text_file);
+  FILE *file = fopen("movieD.dat", "wb");
 
+  fwrite(allMovies, sizeof(Movie), nMovies, file);
+
+  fclose(file);
 }
-
 
 Genre pickGenre() {
   char *options[6] = {
