@@ -13,7 +13,14 @@
 
 #define MOVIE_DB_FILENAME "./data/movie.dat"
 #define CUSTOMER_DB_FILENAME "./data/customer.dat"
+#define RENTAL_DB_FILENAME "./data/rental.dat"
 #define TEMP_DB_FILENAME "./data/temp.dat"
+
+typedef enum CopyType {
+  Vhs,
+  Dvd,
+  BlueRay
+} CopyType;
 
 typedef struct Copies {
   int vhs;
@@ -40,10 +47,11 @@ typedef struct Movie {
 
 } Movie;
 
-// TODO: Change API to use `Movie` type
 typedef struct Rent {
-  char Movie[MAX_MOVIE_NAME_LENGTH];
-  int rentTime;
+  int movieID;
+  int customerID;
+  CopyType type;
+  int rentDuration;
 } Rent;
 
 typedef struct Customer {
@@ -53,7 +61,7 @@ typedef struct Customer {
   char address[MAX_ADDRESS_LENGTH];
   float pendingCharges;
   Rent rentHistory[MAX_RENTALS];
-  int rentNo;
+  int rentCount;
 } Customer;
 
 // Utils
@@ -64,10 +72,11 @@ int chooseFromOptions(int n, char **options);
 // Customers
 void askID(int *id);
 int createCustomer();
-void saveNewCustomer(Customer customer);
+int alterCustomer(int id, Customer newCustomer);
+int saveNewCustomer(Customer customer);
 void displayCustomerInfo(Customer customer);
 void retrieveCustomers(Customer *allCustomers, int *customerCount);
-Customer searchCustomers(int id);
+Customer *searchCustomersByID(int id);
 
 // Movies
 
@@ -81,14 +90,14 @@ Movie *searchMoviesByTitle(char *query, int *count);
 Movie *searchMoviesByID(int id);
 
 void deleteMovie(int id);
-int assignMovieToCustomer(int movieID, int customerID);
+int assignMovieToCustomer(int movieID, int customerID, CopyType type, int duration);
 
 void printMovie(Movie movie);
 Genre pickGenre();
-void alterMovie(int id);
-void rentMovie(Customer *customer);
-void returnMovie(Customer *customer);
+void alterMovie(int id, Movie newMovie);
+void returnMovie(Customer *customer, int movieID);
 void saveNewMovie(Movie movie);
+void listAllMovies();
 
 char *getGenreName(Genre genre);
 // Interfaces

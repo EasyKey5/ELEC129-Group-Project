@@ -5,6 +5,18 @@
 
 #include "lib.h"
 
+void listAllMovies() {
+
+  Movie allMovies[MAX_MOVIES];
+  int movieCount;
+
+  retrieveMovies(allMovies, &movieCount);
+  for (int i = 0; i < movieCount; i++) {
+
+    printMovie(allMovies[i]);
+  }
+}
+
 void printMovie(Movie movie) {
 
   printf("\n\n");
@@ -62,7 +74,7 @@ Movie *searchMoviesByTitle(char *query, int *count) {
   return movie;
 }
 
-Movie *getMovieByID(int id) {
+Movie *searchMoviesByID(int id) {
   Movie *movie = malloc(sizeof(Movie));
 
   Movie allMovies[MAX_MOVIES];
@@ -80,96 +92,7 @@ Movie *getMovieByID(int id) {
   return NULL;
 };
 
-void alterMovie(int id) {
-  Movie *moviePtr = getMovieByID(id);
-
-  // check if there was a result
-  if (!moviePtr) {
-    printf("=> Movie with id %u could not be found\n", id);
-    return;
-  }
-
-  Movie movie = *moviePtr;
-
-  char *alterOptions[] = {
-      "To edit the title",
-      "To edit the actors",
-      "To edit the copies",
-      "To change the genre"
-
-  };
-  int choice = chooseFromOptions(4, alterOptions);
-
-  divider();
-
-  switch (choice) {
-  case 1: // title
-    {
-      printf("=> Enter the new title: --< ");
-      scanf("%[^\n]", movie.title);
-      break;
-    }
-
-  case 2: // actors
-    {
-      printf("=> Enter the names of the actors or \"q\" to finish\n");
-
-      for (movie.nActors = 0; movie.nActors < MAX_ACTORS; movie.nActors++) {
-
-        char input[MAX_ACTOR_NAME_LENGTH] = "";
-
-        printf("=> Enter actor %u: --< ", movie.nActors + 1);
-        scanf("%[^\n]", input);
-        getchar();
-
-        // "q" to exit
-        if (!strcmp(input, "q")) {
-          break;
-        }
-
-        strncpy(movie.actors[movie.nActors], input, MAX_ACTOR_NAME_LENGTH);
-      }
-
-      // FIXME: EXTRA "q"
-      //
-      // for (movie.nActors = 0; movie.nActors < MAX_ACTORS; movie.nActors++) {
-      //   if (!strcmp(input, "q"))
-      //     break;
-      //
-      //   printf("=> Enter actor %u: --< ", movie.nActors + 1);
-      //   scanf("%[^\n]", input);
-      //   getchar();
-      //
-      //   // FIXME: use new double array
-      //
-      //   strcpy(movie.actors[movie.nActors], input);
-      // }
-      break;
-    }
-
-  case 3: // copies
-    {
-      printf("=> Enter the number of VHS copies: ------< ");
-      scanf("%u", &movie.copies.vhs);
-      getchar();
-
-      printf("=> Enter the number of dvd copies: ------< ");
-      scanf("%u", &movie.copies.dvd);
-      getchar();
-
-      printf("=> Enter the number of BlueRay copies: --< ");
-      scanf("%u", &movie.copies.blueRay);
-      getchar();
-      break;
-    }
-
-  case 4: // genre
-    {
-      movie.genre = pickGenre();
-      break;
-    }
-  }
-
+void alterMovie(int id, Movie movie) {
   Movie allMovies[MAX_MOVIES];
   int nMovies;
 
@@ -197,9 +120,6 @@ void alterMovie(int id) {
   fwrite(&movie, sizeof(Movie), 1, db);
 
   fclose(db);
-
-  // free the memory
-  free(moviePtr);
 }
 
 // TODO: TEST
@@ -269,6 +189,24 @@ void saveNewMovie(Movie movie) {
     return;
   }
 
+  // generate an id for this new movie
+  Movie currentMovies[MAX_MOVIES];
+  int count = 1;
+  retrieveMovies(currentMovies, &count);
+
+  movie.id = 100;
+  bool validID = true;
+  do {
+    for (int i = 0; i < count; i++) {
+      if (currentMovies[i].id == movie.id) {
+
+        validID = false;
+      } else {
+        movie.id++;
+      }
+    }
+  } while (!validID);
+
   fwrite(&movie, sizeof(Movie), 1, file);
 
   fclose(file);
@@ -290,8 +228,8 @@ Genre pickGenre() {
 }
 
 // TODO: alter implementation to use `Movie` type
-void returnMovie(Customer *customer) {
-  if (customer->rentNo == 0) {
+void returnMovie(Customer *customer, int movieID) {
+  if (customer->rentCount == 0) {
     divider();
     printf("=> This customer currently is not renting any movies.\n");
     divider();
@@ -300,8 +238,11 @@ void returnMovie(Customer *customer) {
   }
   divider();
   printf("=> Customer is currently renting the following movies:\n");
-  for (int i = 0; i < customer->rentNo; i++) {
-    printf("=> -------< %d. %s (Rented movie for: %d days)\n", i + 1, customer->rentHistory[i].Movie, customer->rentHistory[i].rentTime);
+  for (int i = 0; i < customer->rentCount; i++) {
+    Movie *movie = searchMoviesByID(customer->rentHistory[i].movieID);
+    printf("=> -------< %d. %s (Rented movie for: %d days)\n",
+           i + 1, movie->title, customer->rentHistory[i].rentDuration);
+    free(movie);
   }
 
   int rentalIndex;
@@ -311,21 +252,22 @@ void returnMovie(Customer *customer) {
   scanf("%d", &rentalIndex);
   rentalIndex--;
 
-  if (rentalIndex < 0 || rentalIndex >= customer->rentNo) {
+  if (rentalIndex < 0 || rentalIndex >= customer->rentCount) {
     divider();
     printf("=> Invalid selection.\n");
     divider();
     puts("\n");
     return;
   }
-  float rentalCharge = customer->rentHistory[rentalIndex].rentTime * 1;
+
+  float rentalCharge = customer->rentHistory[rentalIndex].rentDuration * 1;
   customer->pendingCharges -= rentalCharge;
 
   // Shift the rental history to remove the returned film
-  for (int i = rentalIndex; i < customer->rentNo - 1; i++) {
+  for (int i = rentalIndex; i < customer->rentCount - 1; i++) {
     customer->rentHistory[i] = customer->rentHistory[i + 1];
   }
-  customer->rentNo--;
+  customer->rentCount--;
   divider();
   printf("=> Movie has been returned successfully and removed from their account!\n");
   printf("=> Pending charges: $%.2f\n", customer->pendingCharges);
@@ -333,33 +275,34 @@ void returnMovie(Customer *customer) {
   puts("\n");
 }
 
-// TODO: alter implementation to use `Movie` type
-void rentMovie(Customer *customer) {
-  if (customer->rentNo >= MAX_RENTALS) {
-    divider();
-    printf("=> Customer has reached maximum amount of rentals permitted,\n");
-    printf("=> They must return any loaned out movies before being allowed to rent more.\n");
-    divider();
-    return;
-  }
-
-  Rent newRental;
-  divider();
-  printf("=> What is the name of the movie?: ----------< ");
-  fgets(newRental.Movie, sizeof(newRental.Movie), stdin);
-  newRental.Movie[strcspn(newRental.Movie, "\n")] = 0;
-  divider();
-  printf("=> How many days will they rent the movie?:--< ");
-  scanf("%d", &newRental.rentTime);
-  getchar();
-
-  customer->rentHistory[customer->rentNo] = newRental;
-  customer->rentNo++;
-
-  float rentalCharge = newRental.rentTime * 1; // Im makinng the price a £1 per day to rnt idk how rental prices work so just change if needed
-  customer->pendingCharges += rentalCharge;
-  divider();
-  printf("=> Movie has been rented successfully and added to their account!\n");
-  printf("=> Pending charges: $%.2f\n", customer->pendingCharges);
-  divider();
-}
+// // TODO: alter implementation to use `Movie` type
+// void rentMovie(Customer *customer) {
+//   if (customer->rentCount >= MAX_RENTALS) {
+//     divider();
+//     printf("=> Customer has reached maximum amount of rentals permitted,\n");
+//     printf("=> They must return any loaned out movies before being allowed to rent more.\n");
+//     divider();
+//     return;
+//   }
+//
+//   Rent newRental;
+//   divider();
+//   printf("=> What is the name of the movie?: ----------< ");
+//   Movie *movie = searchMoviesByID(newRental.movieID);
+//   fgets(newRental.Movie, sizeof(newRental.Movie), stdin);
+//   newRental.Movie[strcspn(newRental.Movie, "\n")] = 0;
+//   divider();
+//   printf("=> How many days will they rent the movie?:--< ");
+//   scanf("%d", &newRental.rentTime);
+//   getchar();
+//
+//   customer->rentHistory[customer->rentCount] = newRental;
+//   customer->rentCount++;
+//
+//   float rentalCharge = newRental.rentTime * 1; // Im makinng the price a £1 per day to rnt idk how rental prices work so just change if needed
+//   customer->pendingCharges += rentalCharge;
+//   divider();
+//   printf("=> Movie has been rented successfully and added to their account!\n");
+//   printf("=> Pending charges: $%.2f\n", customer->pendingCharges);
+//   divider();
+// }

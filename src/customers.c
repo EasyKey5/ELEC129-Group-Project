@@ -5,6 +5,51 @@
 
 #include "lib.h"
 
+int alterCustomer(int id, Customer newCustomer) {
+
+  Customer allCustomers[MAX_CUSTOMERS];
+  int customerCount;
+  retrieveCustomers(allCustomers, &customerCount);
+
+  FILE *temp = fopen(TEMP_DB_FILENAME, "wb");
+
+  if (!temp) {
+    printf("=> Reading from %s failed, aborting.\n", TEMP_DB_FILENAME);
+    return 0;
+  }
+
+  for (int i = 0; i < customerCount; i++) {
+    if (allCustomers[i].ID == id) {
+      fwrite(&newCustomer, sizeof(Customer), 1, temp);
+    } else {
+      fwrite(&allCustomers, sizeof(Customer), 1, temp);
+    }
+  }
+
+  fclose(temp);
+  remove(CUSTOMER_DB_FILENAME);
+  rename(TEMP_DB_FILENAME, CUSTOMER_DB_FILENAME);
+  return 1;
+}
+
+Customer *searchCustomersByID(int id) {
+  Customer *customer = malloc(sizeof(Customer));
+
+  Customer allCustomers[MAX_CUSTOMERS];
+  int customerCount;
+  retrieveCustomers(allCustomers, &customerCount);
+
+  for (int i = 0; i < customerCount; i++) {
+    if (allCustomers[i].ID == id) {
+      *customer = allCustomers[i];
+      return customer;
+    }
+  }
+
+  // could not find customer with matching id
+  return NULL;
+}
+
 void retrieveCustomers(Customer *allCustomers, int *customerCount) {
   //
   FILE *file = fopen(CUSTOMER_DB_FILENAME, "rb");
@@ -32,17 +77,18 @@ void retrieveCustomers(Customer *allCustomers, int *customerCount) {
   fclose(file);
 }
 
-void saveNewCustomer(Customer customer) {
+int saveNewCustomer(Customer customer) {
   FILE *db = fopen(CUSTOMER_DB_FILENAME, "ab");
 
   if (!db) {
-    printf("an error occurred while opening %s, aborting\n", CUSTOMER_DB_FILENAME);
-    return;
+    printf("=> An error occurred while opening %s, aborting\n", CUSTOMER_DB_FILENAME);
+    return 0;
   }
 
   fwrite(&customer, sizeof(Customer), 1, db);
 
   fclose(db);
+  return 1;
 }
 
 void askID(int *id) {
@@ -78,12 +124,17 @@ void displayCustomerInfo(Customer customer) {
   printf("=> Address: --------------< %s\n", customer.address);
   printf("=> Pending Charges: ------< $%.2f\n", customer.pendingCharges);
   divider();
-  if (customer.rentNo > 0) {
+  if (customer.rentCount > 0) {
 
     printf("=> Customer Rental History:\n");
 
-    for (int i = 0; i < customer.rentNo; i++) {
-      printf("=> -----------------------< %d. %s (Rented movie(s) for: %d days)\n", i + 1, customer.rentHistory[i].Movie, customer.rentHistory[i].rentTime);
+    for (int i = 0; i < customer.rentCount; i++) {
+      // TODO: SAFETY
+      Movie *movie = searchMoviesByID(customer.rentHistory[i].movieID);
+
+      printf("=> -----------------------< %d. %s (Rented movie(s) for: %d days)\n",
+             i + 1, movie->title, customer.rentHistory[i].rentDuration);
+      free(movie);
     }
 
   } else {
@@ -123,7 +174,7 @@ int createCustomer() {
   fgets(newCustomer.address, sizeof(newCustomer.address), stdin);
   newCustomer.address[strcspn(newCustomer.address, "\n")] = 0;
   newCustomer.pendingCharges = 0.0;
-  newCustomer.rentNo = 0;
+  newCustomer.rentCount = 0;
 
   // ensure that there isn't a customer already with this id
   int customerCount;
@@ -150,10 +201,15 @@ int createCustomer() {
     }
   };
 
-  saveNewCustomer(newCustomer);
+  int exitCode = saveNewCustomer(newCustomer);
+  if (exitCode == 1) {
 
-  printf("=> All complete, the customer has been added to the Database!\n");
-  divider();
-  fputs("\n\n", stdout);
-  return 1;
+    printf("=> All complete, the customer has been added to the Database!\n");
+    divider();
+    fputs("\n\n", stdout);
+    return 1;
+  } else {
+    printf("Could not create user, exited with status %i", exitCode);
+    return exitCode;
+  }
 }
