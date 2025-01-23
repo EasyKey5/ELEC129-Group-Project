@@ -43,17 +43,21 @@ void managementConsole() {
       newMovie.genre = pickGenre();
 
       printf("=> Enter the names of the actors or \"q\" to finish\n");
-      char input[MAX_ACTOR_NAME_LENGTH] = "";
 
       for (newMovie.nActors = 0; newMovie.nActors < MAX_ACTORS; newMovie.nActors++) {
-        if (!strcmp(input, "q")) // strings are equal
-          break;
+
+        char input[MAX_ACTOR_NAME_LENGTH] = "";
 
         printf("=> Enter actor %u: --< ", newMovie.nActors + 1);
         scanf("%[^\n]", input);
         getchar();
 
-        newMovie.actors[newMovie.nActors] = input;
+        // "q" to exit
+        if (!strcmp(input, "q")) {
+          break;
+        }
+
+        strncpy(newMovie.actors[newMovie.nActors], input, MAX_ACTOR_NAME_LENGTH);
       }
 
       printf("=> Enter the number of VHS copies: ------< ");
@@ -68,7 +72,7 @@ void managementConsole() {
       scanf("%u", &newMovie.copies.blueRay);
       getchar();
 
-      saveMovie(newMovie);
+      saveNewMovie(newMovie);
       break;
     };
 
@@ -136,12 +140,13 @@ void managementConsole() {
 
       int count = 5;
 
-      // DO NOT USE THIS VARIABLE IF SEARCH FAILS
+      // WARNING: DO NOT USE THIS VARIABLE IF SEARCH FAILS
       Movie *results = searchMoviesByTitle(query, &count);
       if (results) {
         if (count < 0) {
           fprintf(stderr, "=> ERROR: Unknown search error\n");
         } else if (count == 1) {
+          // FIXME: why does this result in `alterMovie(0)`
           alterMovie(results->id);
         } else { // Multiple results, select one
 

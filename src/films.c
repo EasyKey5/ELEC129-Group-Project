@@ -4,8 +4,12 @@
 
 #include "lib.h"
 
+void rentalDesk() {
+};
+
 void printMovie(Movie movie) {
 
+  printf("\n\n");
   printf("=> Title: %s\n", movie.title);
   printf("=> ID: %i\n", movie.id);
   printf("=> Genre: %s\n", getGenreName(movie.genre));
@@ -17,6 +21,7 @@ void printMovie(Movie movie) {
   printf("===> DVD: %i\n", movie.copies.dvd);
   printf("===> VHS: %i\n", movie.copies.vhs);
   printf("===> BlueRay: %i\n", movie.copies.blueRay);
+  printf("\n\n");
 }
 
 /// TODO: Implement proper search function
@@ -30,109 +35,175 @@ void printMovie(Movie movie) {
 /// ALWAYS CHECK FOR NULL
 /// REMEMBER TO `free(movie)` when finished
 Movie *searchMoviesByTitle(char *query, int *count) {
-  Movie *movie = malloc(sizeof(Movie) * *count);
-  *movie =
-      (Movie){
-          .id = 1,
-          .title = "Jumanji: Welcome to the jungle",
-          .actors = {"Dwayne Johnson", "Jack Black", "Kevin Hart"},
-          .nActors = 3,
-          .genre = Action,
-          .copies = (Copies){.dvd = 3, .vhs = 1, .blueRay = 5}};
+  // allocate enough memory to hold `count` movies
+  Movie *movie = malloc(sizeof(Movie) * (*count));
 
-  // simulating only one result
-  *count = 1;
+  int desiredCount = *count;
+
+  Movie allMovies[MAX_MOVIES];
+
+  // this will set count to the number of items in the db
+  retrieveMovies(allMovies, count);
+
+  // sets desiredCount to the maximum of count and desiredCount
+  // this is so we can't retrieve more movies than there are in
+  // the database
+  desiredCount = desiredCount < *count ? desiredCount : *count;
+
+  *count = 0;
+
+  for (int i = 0; i < desiredCount; i++) {
+    if (!strcmp(allMovies[i].title, query)) {
+      printf("MATCH FOUND\n");
+      printMovie(allMovies[i]);
+      movie[*count] = allMovies[i];
+      (*count)++;
+    }
+  }
+
   movie = realloc(movie, sizeof(Movie) * *count);
 
   return movie;
 }
 
-// TODO: IMPLEMENT
-///
-/// Returns a reference to the movie struct
-/// If movie doesn't exist, pointer is null
-///
-/// ALWAYS CHECK FOR NULL
 Movie *getMovieByID(int id) {
   Movie *movie = malloc(sizeof(Movie));
-  *movie =
-      (Movie){
-          .id = 1,
-          .title = "Jumanji: Welcome to the jungle",
-          .actors = {"Dwayne Johnson", "Jack Black", "Kevin Hart"},
-          .nActors = 3,
-          .genre = Action,
-          .copies = (Copies){.dvd = 3, .vhs = 1, .blueRay = 5}};
 
-  return movie;
+  Movie allMovies[MAX_MOVIES];
+  int nMovies;
+  retrieveMovies(allMovies, &nMovies);
+
+  for (int i = 0; i < nMovies; i++) {
+    if (allMovies[i].id == id) {
+      *movie = allMovies[i];
+      return movie;
+    }
+  }
+
+  // could not find movie with matching id
+  return NULL;
 };
 
 void alterMovie(int id) {
-  Movie *movie = getMovieByID(id);
-  if (movie) {
+  Movie *moviePtr = getMovieByID(id);
 
-    char *alterOptions[] = {
-        "To edit the title",
-        "To edit the actors",
-        "To edit the copies",
-        "To change the genre"
+  // check if there was a result
+  if (!moviePtr) {
+    printf("=> Movie with id %u could not be found\n", id);
+    return;
+  }
 
-    };
-    int choice = chooseFromOptions(4, alterOptions);
+  Movie movie = *moviePtr;
 
-    divider();
+  char *alterOptions[] = {
+      "To edit the title",
+      "To edit the actors",
+      "To edit the copies",
+      "To change the genre"
 
-    switch (choice) {
-    case 1: // title
-      {
-        printf("=> Enter the new title: --< ");
-        scanf("%[^\n]", movie->title);
-        break;
-      }
+  };
+  int choice = chooseFromOptions(4, alterOptions);
 
-    case 2: // actors
-      {
-        printf("=> Enter the names of the actors or \"q\" to finish\n");
+  divider();
+
+  switch (choice) {
+  case 1: // title
+    {
+      printf("=> Enter the new title: --< ");
+      scanf("%[^\n]", movie.title);
+      break;
+    }
+
+  case 2: // actors
+    {
+      printf("=> Enter the names of the actors or \"q\" to finish\n");
+
+      for (movie.nActors = 0; movie.nActors < MAX_ACTORS; movie.nActors++) {
+
         char input[MAX_ACTOR_NAME_LENGTH] = "";
 
-        for (movie->nActors = 0; movie->nActors < MAX_ACTORS; movie->nActors++) {
-          if (!strcmp(input, "q")) // strings are equal
-            break;
+        printf("=> Enter actor %u: --< ", movie.nActors + 1);
+        scanf("%[^\n]", input);
+        getchar();
 
-          printf("=> Enter actor %u: --< ", movie->nActors + 1);
-          scanf("%[^\n]", input);
-          getchar();
-
-          movie->actors[movie->nActors] = input;
+        // "q" to exit
+        if (!strcmp(input, "q")) {
+          break;
         }
-        break;
+
+        strncpy(movie.actors[movie.nActors], input, MAX_ACTOR_NAME_LENGTH);
       }
 
-    case 3: // copies
-      {
-        printf("=> Enter the number of VHS copies: ------< ");
-        scanf("%u", &movie->copies.vhs);
-        getchar();
-
-        printf("=> Enter the number of dvd copies: ------< ");
-        scanf("%u", &movie->copies.dvd);
-        getchar();
-
-        printf("=> Enter the number of BlueRay copies: --< ");
-        scanf("%u", &movie->copies.blueRay);
-        getchar();
-        break;
-      }
-
-    case 4: // genre
-      {
-        movie->genre = pickGenre();
-        break;
-      }
+      // FIXME: EXTRA "q"
+      //
+      // for (movie.nActors = 0; movie.nActors < MAX_ACTORS; movie.nActors++) {
+      //   if (!strcmp(input, "q"))
+      //     break;
+      //
+      //   printf("=> Enter actor %u: --< ", movie.nActors + 1);
+      //   scanf("%[^\n]", input);
+      //   getchar();
+      //
+      //   // FIXME: use new double array
+      //
+      //   strcpy(movie.actors[movie.nActors], input);
+      // }
+      break;
     }
-    saveMovie(*movie);
-    free(movie);
+
+  case 3: // copies
+    {
+      printf("=> Enter the number of VHS copies: ------< ");
+      scanf("%u", &movie.copies.vhs);
+      getchar();
+
+      printf("=> Enter the number of dvd copies: ------< ");
+      scanf("%u", &movie.copies.dvd);
+      getchar();
+
+      printf("=> Enter the number of BlueRay copies: --< ");
+      scanf("%u", &movie.copies.blueRay);
+      getchar();
+      break;
+    }
+
+  case 4: // genre
+    {
+      movie.genre = pickGenre();
+      break;
+    }
   }
+
+  Movie allMovies[MAX_MOVIES];
+  int nMovies;
+
+  retrieveMovies(allMovies, &nMovies);
+
+  // get the index of this movie in the database
+  // given we have already found the movie in
+  // `searchMovieByID`, this should never fail
+  int i;
+  for (i = 0; i < nMovies; i++) {
+    if (allMovies[i].id == movie.id)
+      break;
+  }
+
+  printMovie(movie);
+
+  FILE *db = fopen(MOVIE_DB_FILENAME, "wb");
+
+  // move the file pointer to the start
+  // of the movie we want to edit
+  fseek(db, sizeof(Movie) * i, SEEK_SET);
+
+  // write the altered movie over the top
+  // of the one currently stored in the db
+  fwrite(&movie, sizeof(Movie), 1, db);
+
+  fclose(db);
+
+  // free the memory
+  free(moviePtr);
 }
 
 // TODO: Implement
@@ -140,41 +211,36 @@ void deleteMovie(int id) {
   printf("=> Deleted movie %u\n", id);
 }
 
-// TODO: Implement
 void retrieveMovies(Movie *allMovies, int *nMovies) {
-  FILE *text_file = fopen("movieD.dat", "rb");
+  FILE *file = fopen(MOVIE_DB_FILENAME, "rb");
 
-  if (text_file == NULL) {
-    printf("Could not locate file\n");
+  if (file == NULL) {
+    printf("Could not locate file, aborting\n");
+
     exit(-1);
   }
 
   // fwrite(&cusName, sizeof(int), 1, text_file);
   *nMovies = 0;
-  while (!feof(text_file)) {
-    fread(&allMovies[*nMovies], sizeof(Movie), 1, text_file);
-    printMovie(allMovies[*nMovies]);
+  Movie currentMovie;
+  while (fread(&currentMovie, sizeof(Movie), 1, file) == 1) {
+
+    allMovies[*nMovies] = currentMovie;
+    (*nMovies)++;
   }
-  fclose(text_file);
+  fclose(file);
 }
 
-// TODO: Implement
-void saveMovie(Movie movie) {
+void saveNewMovie(Movie movie) {
+  FILE *file = fopen(MOVIE_DB_FILENAME, "ab");
 
-  // TODO: INCREASE SIZE (use malloc)
-  int nMovies;
-  Movie allMovies[100];
-
-  retrieveMovies(allMovies, &nMovies);
-  allMovies[nMovies] = movie;
-
-  FILE *file = fopen("movieD.dat", "wb");
-
+  // file does not exist
   if (file == NULL) {
-    printf("FIle not found");
+    printf("An error occurred, operation aborted.\n");
+    return;
   }
 
-  fwrite(allMovies, sizeof(Movie), nMovies, file);
+  fwrite(&movie, sizeof(Movie), 1, file);
 
   fclose(file);
 }

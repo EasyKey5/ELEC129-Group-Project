@@ -62,7 +62,7 @@ int chooseFromOptions(int n, char **options) {
     printf("< %i\n", i + 1);
   }
 
-  fputs("=> Enter number here: ", stdout);
+  fputs("\n=> Enter number here: ", stdout);
   for (int i = 0; i < lineLen - 11; i++) {
     fputs("-", stdout);
   }

@@ -11,6 +11,9 @@
 #define MAX_MOBILE_LENGTH 20
 #define MAX_RENTALS 10
 
+#define MOVIE_DB_FILENAME "./data/movie.dat"
+#define CUSTOMER_DB_FILENAME "./data/customer.dat"
+
 typedef struct Copies {
   int vhs;
   int dvd;
@@ -29,7 +32,7 @@ typedef enum Genre {
 typedef struct Movie {
   int id;
   char title[MAX_MOVIE_NAME_LENGTH];
-  char *actors[MAX_ACTORS];
+  char actors[MAX_ACTORS][MAX_ACTOR_NAME_LENGTH];
   int nActors;
   Copies copies;
   Genre genre;
@@ -58,6 +61,7 @@ void divider();
 int chooseFromOptions(int n, char **options);
 
 // Customers
+/// TODO: UNIQUE PASS NUMBER
 void askID(int *id);
 void addCustomer(Customer *customers, int *CustomerNo);
 void displayCustomerInfo(Customer *customer);
@@ -83,7 +87,7 @@ Genre pickGenre();
 void alterMovie(int id);
 void rentMovie(Customer *customer);
 void returnMovie(Customer *customer);
-void saveMovie(Movie movie);
+void saveNewMovie(Movie movie);
 
 // Interfaces
 void managementConsole();

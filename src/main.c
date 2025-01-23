@@ -8,6 +8,21 @@ int main() {
 
   Customer customers[50];
   int existingCustomers = 0;
+  Movie defaultMovie = (Movie){
+      .id = 101,
+      .genre = Musical,
+      .title = "Wicked",
+      .actors = {
+          "Arian Grande",
+          "Cynthia Enrivo"},
+      .nActors = 2,
+      .copies = (Copies){.dvd = 10, .vhs = 5, .blueRay = 1}};
+
+  // saveNewMovie(defaultMovie);
+  Movie movies[10];
+  int nMovies = 0;
+  retrieveMovies(movies, &nMovies);
+  printf("%u movies found", nMovies);
 
   divider();
   printCenter("Welcome back to the");

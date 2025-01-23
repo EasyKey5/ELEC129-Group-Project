@@ -57,3 +57,4 @@ dkms.conf
 
 # OS files
 .DS_Store
+data/
