@@ -4,9 +4,6 @@
 
 #include "lib.h"
 
-void rentalDesk() {
-};
-
 void printMovie(Movie movie) {
 
   printf("\n\n");
@@ -24,7 +21,7 @@ void printMovie(Movie movie) {
   printf("\n\n");
 }
 
-/// TODO: Implement proper search function
+/// FIXME: Implement proper search function
 ///
 /// Returns a pointer to the first `count` movies
 ///

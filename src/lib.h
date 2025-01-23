@@ -81,6 +81,7 @@ Movie *searchMoviesByTitle(char *query, int *count);
 Movie *searchMoviesByID(int id);
 
 void deleteMovie(int id);
+int assignMovieToCustomer(int movieID, int customerID);
 
 void printMovie(Movie movie);
 Genre pickGenre();
