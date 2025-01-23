@@ -1,7 +1,49 @@
+#include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "lib.h"
+
+void retrieveCustomers(Customer *allCustomers, int *customerCount) {
+  //
+  FILE *file = fopen(CUSTOMER_DB_FILENAME, "rb");
+
+  if (file == NULL) {
+    printf("Could not locate file %s, attempting to create it\n", CUSTOMER_DB_FILENAME);
+    file = fopen(CUSTOMER_DB_FILENAME, "wb");
+    if (file) {
+      printf("=> File created successfully\n");
+      return;
+    } else {
+      printf("=> Something went wrong, aborting.\n");
+      exit(-1);
+    }
+  }
+
+  // fwrite(&cusName, sizeof(int), 1, text_file);
+  *customerCount = 0;
+  Customer currentCustomer;
+  while (fread(&currentCustomer, sizeof(Customer), 1, file) == 1) {
+
+    allCustomers[*customerCount] = currentCustomer;
+    (*customerCount)++;
+  }
+  fclose(file);
+}
+
+void saveNewCustomer(Customer customer) {
+  FILE *db = fopen(CUSTOMER_DB_FILENAME, "ab");
+
+  if (!db) {
+    printf("an error occurred while opening %s, aborting\n", CUSTOMER_DB_FILENAME);
+    return;
+  }
+
+  fwrite(&customer, sizeof(Customer), 1, db);
+
+  fclose(db);
+}
 
 void askID(int *id) {
   printf("=> Enter the customers ID number: ----------< ");
@@ -26,58 +68,49 @@ void listCustomers(Customer *customers, int CustomerNo) {
   fputs("\n\n", stdout);
 }
 
-void displayCustomerInfo(Customer *customer) {
+void displayCustomerInfo(Customer customer) {
 
   divider();
   printf("=> Customer information: \n");
+  printf("=> ID Number: ------------< %d\n", customer.ID);
+  printf("=> Name: -----------------< %s\n", customer.name);
+  printf("=> Mobile phone number: --< %s\n", customer.phone);
+  printf("=> Address: --------------< %s\n", customer.address);
+  printf("=> Pending Charges: ------< $%.2f\n", customer.pendingCharges);
   divider();
-  printf("=> ID Number: ------------< %d\n", customer->ID);
-  divider();
-  printf("=> Name: -----------------< %s\n", customer->name);
-  divider();
-  printf("=> Mobile phone number: --< %s\n", customer->phone);
-  divider();
-  printf("=> Address: --------------< %s\n", customer->address);
-  divider();
-  printf("=> Pending Charges: ------< $%.2f\n", customer->pendingCharges);
-  divider();
-  if (customer->rentNo > 0) {
+  if (customer.rentNo > 0) {
 
-    divider();
     printf("=> Customer Rental History:\n");
 
-    for (int i = 0; i < customer->rentNo; i++) {
-      divider();
-      printf("=> -----------------------< %d. %s (Rented movie(s) for: %d days)\n", i + 1, customer->rentHistory[i].Movie, customer->rentHistory[i].rentTime);
+    for (int i = 0; i < customer.rentNo; i++) {
+      printf("=> -----------------------< %d. %s (Rented movie(s) for: %d days)\n", i + 1, customer.rentHistory[i].Movie, customer.rentHistory[i].rentTime);
     }
 
   } else {
-    divider();
     printf("=> Customer has not rented any movies yet.\n");
-    divider();
   }
   divider();
   fputs("\n\n", stdout);
 }
 
-void addCustomer(Customer *customers, int *existingCustomers) {
+int createCustomer() {
 
-  if (*existingCustomers >= MAX_CUSTOMERS) {
-
-    divider();
-    printf("=> ERROR: MAX CUSTOMERS REACHED - ABORTED\n");
-    divider();
-    fputs("\n\n", stdout);
-
-    return;
-  }
+  // if (*existingCustomers >= MAX_CUSTOMERS) {
+  //
+  //   divider();
+  //   printf("=> ERROR: MAX CUSTOMERS REACHED - ABORTED\n");
+  //   divider();
+  //   fputs("\n\n", stdout);
+  //
+  //   return;
+  // }
 
   Customer newCustomer;
   divider();
   printf("=> Create the customers ID number: ----------< ");
   scanf("%d", &newCustomer.ID);
-  divider();
   getchar();
+  divider();
   printf("=> What is their full name?: ----------------< ");
   fgets(newCustomer.name, sizeof(newCustomer.name), stdin);
   newCustomer.name[strcspn(newCustomer.name, "\n")] = 0;
@@ -92,11 +125,35 @@ void addCustomer(Customer *customers, int *existingCustomers) {
   newCustomer.pendingCharges = 0.0;
   newCustomer.rentNo = 0;
 
-  customers[*existingCustomers] = newCustomer;
-  (*existingCustomers)++;
+  // ensure that there isn't a customer already with this id
+  int customerCount;
+  Customer customers[MAX_CUSTOMERS];
 
-  divider();
+  retrieveCustomers(customers, &customerCount);
+
+  bool validID = false;
+
+  while (!validID) {
+    validID = true;
+    for (int i = 0; i < customerCount; i++) {
+      if (customers[i].ID == newCustomer.ID) {
+        validID = false;
+        break;
+      }
+    }
+
+    if (!validID) {
+      printf("=> This id is already taken, please choose another: ");
+      scanf("%d", &newCustomer.ID);
+      getchar();
+      divider();
+    }
+  };
+
+  saveNewCustomer(newCustomer);
+
   printf("=> All complete, the customer has been added to the Database!\n");
   divider();
   fputs("\n\n", stdout);
+  return 1;
 }

@@ -5,7 +5,9 @@ void displayMenu();
 void rentFilm();
 void returnFilm();
 
-int assignMovieToCustomer(int movieID, int customerID) { return 1; };
+int assignMovieToCustomer(int movieID, int customerID) {
+  return 1;
+};
 
 void rentalDesk() {
 

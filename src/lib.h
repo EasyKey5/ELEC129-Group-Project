@@ -13,6 +13,7 @@
 
 #define MOVIE_DB_FILENAME "./data/movie.dat"
 #define CUSTOMER_DB_FILENAME "./data/customer.dat"
+#define TEMP_DB_FILENAME "./data/temp.dat"
 
 typedef struct Copies {
   int vhs;
@@ -61,18 +62,17 @@ void divider();
 int chooseFromOptions(int n, char **options);
 
 // Customers
-/// TODO: UNIQUE PASS NUMBER
 void askID(int *id);
-void addCustomer(Customer *customers, int *CustomerNo);
-void displayCustomerInfo(Customer *customer);
-void listCustomers(Customer *customers, int CustomerNo);
+int createCustomer();
+void saveNewCustomer(Customer customer);
+void displayCustomerInfo(Customer customer);
+void retrieveCustomers(Customer *allCustomers, int *customerCount);
 Customer searchCustomers(int id);
-char *getGenreName(Genre genre);
 
 // Movies
 
 // sets nMovies to number of movies and points allMovies to the first
-void retrieveMovies(Movie *allMovies, int *nMovies);
+void retrieveMovies(Movie *allMovies, int *movieCount);
 
 /// searches for the first `count` movies
 ///
@@ -90,6 +90,7 @@ void rentMovie(Customer *customer);
 void returnMovie(Customer *customer);
 void saveNewMovie(Movie movie);
 
+char *getGenreName(Genre genre);
 // Interfaces
 void managementConsole();
 void rentalDesk();

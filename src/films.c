@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,8 +22,6 @@ void printMovie(Movie movie) {
   printf("\n\n");
 }
 
-/// FIXME: Implement proper search function
-///
 /// Returns a pointer to the first `count` movies
 ///
 /// Sets count to the number of results
@@ -203,12 +202,45 @@ void alterMovie(int id) {
   free(moviePtr);
 }
 
-// TODO: Implement
+// TODO: TEST
 void deleteMovie(int id) {
-  printf("=> Deleted movie %u\n", id);
+  Movie *allMovies;
+  int movieCount;
+
+  retrieveMovies(allMovies, &movieCount);
+
+  // write every entry but the one we want to delete to a
+  // temp file, then overwrite the database with the temp file
+
+  FILE *temp = fopen(TEMP_DB_FILENAME, "wb");
+
+  // keep track of whether we actually deleted anything
+  bool didDelete = false;
+
+  if (temp) {
+    for (int i = 0; i < movieCount; i++) {
+      if (allMovies[i].id != id) {
+        fwrite(&allMovies[i], sizeof(Movie), 1, temp);
+        break;
+      } else {
+        didDelete = true;
+      }
+    }
+
+    fclose(temp);
+
+    if (didDelete) {
+
+      // delete the database
+      remove(MOVIE_DB_FILENAME);
+
+      // rename the temporary file to the database name
+      rename(TEMP_DB_FILENAME, MOVIE_DB_FILENAME);
+    }
+  }
 }
 
-void retrieveMovies(Movie *allMovies, int *nMovies) {
+void retrieveMovies(Movie *allMovies, int *movieCount) {
   FILE *file = fopen(MOVIE_DB_FILENAME, "rb");
 
   if (file == NULL) {
@@ -218,12 +250,12 @@ void retrieveMovies(Movie *allMovies, int *nMovies) {
   }
 
   // fwrite(&cusName, sizeof(int), 1, text_file);
-  *nMovies = 0;
+  *movieCount = 0;
   Movie currentMovie;
   while (fread(&currentMovie, sizeof(Movie), 1, file) == 1) {
 
-    allMovies[*nMovies] = currentMovie;
-    (*nMovies)++;
+    allMovies[*movieCount] = currentMovie;
+    (*movieCount)++;
   }
   fclose(file);
 }

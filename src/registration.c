@@ -22,25 +22,25 @@ void registrationDesk() {
       "To exit",
   };
 
-  // TODO: Retrieve customers from file
-  Customer customers[50];
-  int existingCustomers = 0;
+  int customerCount;
+  Customer customers[MAX_CUSTOMERS];
+  retrieveCustomers(customers, &customerCount);
 
   switch (chooseFromOptions(4, options)) {
   case 1:
-    {
-      addCustomer(customers, &existingCustomers);
+    { // create customer
+      createCustomer();
       break;
     }
   case 2:
-    {
+    { // view details
       int ID;
 
       askID(&ID);
 
-      for (int i = 0; i < existingCustomers; i++) {
+      for (int i = 0; i < customerCount; i++) {
         if (customers[i].ID == ID) {
-          displayCustomerInfo(&customers[i]);
+          displayCustomerInfo(customers[i]);
           break;
         }
       }
@@ -48,12 +48,15 @@ void registrationDesk() {
     }
 
   case 3:
-    {
-      listCustomers(customers, existingCustomers);
+    { // view all customers
+
+      for (int i = 0; i < customerCount; i++) {
+        displayCustomerInfo(customers[i]);
+      }
       break;
     }
 
-  case 4:
+  case 4: // exit
     {
       divider();
       printf("Exiting program...\n");
