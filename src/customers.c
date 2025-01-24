@@ -7,6 +7,7 @@
 
 int alterCustomer(int id, Customer newCustomer) {
 
+  // get all the customers
   Customer allCustomers[MAX_CUSTOMERS];
   int customerCount;
   retrieveCustomers(allCustomers, &customerCount);
@@ -18,11 +19,12 @@ int alterCustomer(int id, Customer newCustomer) {
     return 0;
   }
 
+  // overwrite the customer with this id
   for (int i = 0; i < customerCount; i++) {
     if (allCustomers[i].ID == id) {
       fwrite(&newCustomer, sizeof(Customer), 1, temp);
     } else {
-      fwrite(&allCustomers, sizeof(Customer), 1, temp);
+      fwrite(&allCustomers[i], sizeof(Customer), 1, temp);
     }
   }
 
@@ -32,6 +34,7 @@ int alterCustomer(int id, Customer newCustomer) {
   return 1;
 }
 
+/// SAFETY: ALWAYS CHECK FOR NULL & REMEMBER TO free()
 Customer *searchCustomersByID(int id) {
   Customer *customer = malloc(sizeof(Customer));
 
@@ -50,8 +53,10 @@ Customer *searchCustomersByID(int id) {
   return NULL;
 }
 
+/// Sets *allCustomers to the first customer
+/// SAFETEY: IF customerCount IS SET TO 0,
+/// DO NOT USE allCustomers AS IT IS HANGING
 void retrieveCustomers(Customer *allCustomers, int *customerCount) {
-  //
   FILE *file = fopen(CUSTOMER_DB_FILENAME, "rb");
 
   if (file == NULL) {
@@ -66,7 +71,6 @@ void retrieveCustomers(Customer *allCustomers, int *customerCount) {
     }
   }
 
-  // fwrite(&cusName, sizeof(int), 1, text_file);
   *customerCount = 0;
   Customer currentCustomer;
   while (fread(&currentCustomer, sizeof(Customer), 1, file) == 1) {
@@ -77,9 +81,11 @@ void retrieveCustomers(Customer *allCustomers, int *customerCount) {
   fclose(file);
 }
 
+/// Append a customer to the db
 int saveNewCustomer(Customer customer) {
   FILE *db = fopen(CUSTOMER_DB_FILENAME, "ab");
 
+  // error opening file
   if (!db) {
     printf("=> An error occurred while opening %s, aborting\n", CUSTOMER_DB_FILENAME);
     return 0;
@@ -97,23 +103,18 @@ void askID(int *id) {
   getchar();
 }
 
-void listCustomers(Customer *customers, int CustomerNo) {
-  if (CustomerNo == 0) {
-    divider();
-    printf("=> No customers recorded on the system.\n");
-    divider();
-    return;
+/// Lists every customer in the system
+void listCustomers() {
+  Customer allCustomers[MAX_CUSTOMERS];
+  int count;
+
+  retrieveCustomers(allCustomers, &count);
+  for (int i = 0; i < count; i++) {
+    displayCustomerInfo(allCustomers[i]);
   }
-  divider();
-  printf("=> List of all customers recorded on the system:\n");
-  divider();
-  for (int i = 0; i < CustomerNo; i++) {
-    printf("=> ID Number: %d, Name: %s\n", customers[i].ID, customers[i].name);
-  }
-  divider();
-  fputs("\n\n", stdout);
 }
 
+/// Prints customers in a friendly format
 void displayCustomerInfo(Customer customer) {
 
   divider();
@@ -126,16 +127,56 @@ void displayCustomerInfo(Customer customer) {
   divider();
   if (customer.rentCount > 0) {
 
+    // get rentals associated with this customer
+    int count = 5;
+    Rent *rentals = getRentalsByCustomerID(customer.ID, &count);
+
+    // rentCount > 0 yet there are no rentals ??
+    if (!rentals) {
+      printf("=> An error occurred while reading the customer rented movies");
+      customer.rentCount = 0;
+      return;
+    }
+
     printf("=> Customer Rental History:\n");
 
     for (int i = 0; i < customer.rentCount; i++) {
       // TODO: SAFETY
-      Movie *movie = searchMoviesByID(customer.rentHistory[i].movieID);
 
-      printf("=> -----------------------< %d. %s (Rented movie(s) for: %d days)\n",
-             i + 1, movie->title, customer.rentHistory[i].rentDuration);
+      Movie *movie = searchMoviesByID(rentals[i].movieID);
+      if (!movie) {
+
+        // something is wrong, number of rentals != rentCount
+        printf("=> Error: rent count is incorrect\n");
+
+        // sanity check:
+        // if i = 0 and it fails, there are 0 movies.
+        // if i = 1 and it fails, we have already parsed
+        // 1 movie, so rentCount should be 1;
+        customer.rentCount = i;
+        alterCustomer(customer.ID, customer);
+        break;
+      }
+
+      switch (rentals[i].status) {
+      case Active:
+        {
+          printf("=> -----------------------< %d. '%s' - Active (%d days remaining)\n",
+                 i + 1, movie->title, rentals[i].rentDuration);
+          break;
+        }
+      case Returned:
+        printf("=> -----------------------< %d. '%s - Returned'\n",
+               i + 1, movie->title);
+        break;
+      case Overdue:
+        printf("=> -----------------------< %d. '%s' - OVERDUE\n",
+               i + 1, movie->title);
+        break;
+      }
       free(movie);
     }
+    free(rentals);
 
   } else {
     printf("=> Customer has not rented any movies yet.\n");
@@ -144,17 +185,8 @@ void displayCustomerInfo(Customer customer) {
   fputs("\n\n", stdout);
 }
 
+/// Interactively generate a customer, then save to the db
 int createCustomer() {
-
-  // if (*existingCustomers >= MAX_CUSTOMERS) {
-  //
-  //   divider();
-  //   printf("=> ERROR: MAX CUSTOMERS REACHED - ABORTED\n");
-  //   divider();
-  //   fputs("\n\n", stdout);
-  //
-  //   return;
-  // }
 
   Customer newCustomer;
   divider();
@@ -201,6 +233,7 @@ int createCustomer() {
     }
   };
 
+  // save to db
   int exitCode = saveNewCustomer(newCustomer);
   if (exitCode == 1) {
 

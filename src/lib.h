@@ -47,11 +47,19 @@ typedef struct Movie {
 
 } Movie;
 
+typedef enum RentStatus {
+
+  Active,
+  Returned,
+  Overdue
+} RentStatus;
+
 typedef struct Rent {
   int movieID;
   int customerID;
   CopyType type;
   int rentDuration;
+  RentStatus status;
 } Rent;
 
 typedef struct Customer {
@@ -60,7 +68,6 @@ typedef struct Customer {
   char phone[MAX_MOBILE_LENGTH];
   char address[MAX_ADDRESS_LENGTH];
   float pendingCharges;
-  Rent rentHistory[MAX_RENTALS];
   int rentCount;
 } Customer;
 
@@ -77,6 +84,7 @@ int saveNewCustomer(Customer customer);
 void displayCustomerInfo(Customer customer);
 void retrieveCustomers(Customer *allCustomers, int *customerCount);
 Customer *searchCustomersByID(int id);
+void listCustomers();
 
 // Movies
 
@@ -95,11 +103,16 @@ int assignMovieToCustomer(int movieID, int customerID, CopyType type, int durati
 void printMovie(Movie movie);
 Genre pickGenre();
 void alterMovie(int id, Movie newMovie);
-void returnMovie(Customer *customer, int movieID);
+void returnMovie();
 void saveNewMovie(Movie movie);
 void listAllMovies();
 
 char *getGenreName(Genre genre);
+
+void retrieveRentals(Rent *allRentals, int *rentalCount);
+Rent *getRentalsByCustomerID(int id, int *count);
+int saveNewRental(Rent rent);
+
 // Interfaces
 void managementConsole();
 void rentalDesk();

@@ -4,8 +4,7 @@
 
 #include "lib.h"
 
-// printf("=================================>   Welcome back to the   <==================================\n");
-// printf("=============================>   Snazzy Video Rental Customer   <=============================\n");
+// prints given text in the center of the screen. used for headings
 void printCenter(char string[]) {
   int stringLen = strlen(string);
   int leftLineLen = (SCREEN_WIDTH - 3 - stringLen) / 2;
@@ -74,6 +73,23 @@ int chooseFromOptions(int n, char **options) {
   return choice;
 }
 
+// returns the Genre variant, for convenience
+Genre pickGenre() {
+  char *options[6] = {
+      "For Action",
+      "For Comedy",
+      "For Horror",
+      "For Musical",
+      "For Romance",
+      "For SciFi",
+  };
+
+  int choice = chooseFromOptions(6, options);
+
+  return choice - 1;
+}
+
+// returns the character representation of the given genre variant
 char *getGenreName(Genre genre) {
 
   switch (genre) {

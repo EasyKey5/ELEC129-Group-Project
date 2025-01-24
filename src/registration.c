@@ -3,8 +3,12 @@
 
 #include "lib.h"
 
+// console for the staff member in charge of registering new customers
+//
+// has the ability to create, list, and delete customers
 void registrationDesk() {
-  while (1) {
+  int choice = 0;
+  do {
     divider();
     divider();
     printCenter("Welcome back to the");
@@ -24,8 +28,9 @@ void registrationDesk() {
     int customerCount;
     Customer customers[MAX_CUSTOMERS];
     retrieveCustomers(customers, &customerCount);
+    choice = chooseFromOptions(4, options);
 
-    switch (chooseFromOptions(4, options)) {
+    switch (choice) {
     case 1:
       { // create customer
         createCustomer();
@@ -64,5 +69,5 @@ void registrationDesk() {
         exit(0);
       }
     }
-  }
+  } while (choice != 4);
 }

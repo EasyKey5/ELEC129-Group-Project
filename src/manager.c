@@ -5,9 +5,13 @@
 
 #include "lib.h"
 
+// console for manager to use (ability to add, alter and delete movies)
+// charges are currently not implemented
 void managementConsole() {
 
-  while (true) {
+  int choice = 6;
+
+  do {
     divider();
     printCenter("Welcome to the");
     printCenter("Management Console!");
@@ -24,9 +28,9 @@ void managementConsole() {
         "To alter a movie",
         "To list all movies",
         "To alter charges",
-    };
+        "To exit"};
 
-    int choice = chooseFromOptions(5, options);
+    choice = chooseFromOptions(6, options);
 
     divider();
 
@@ -56,11 +60,12 @@ void managementConsole() {
           scanf("%[^\n]", input);
           getchar();
 
-          // "q" to exit
+          // type "q" to exit
           if (!strcmp(input, "q")) {
             break;
           }
 
+          // set the actors name in the struct to the input
           strncpy(newMovie.actors[newMovie.nActors], input, MAX_ACTOR_NAME_LENGTH);
         }
 
@@ -76,6 +81,7 @@ void managementConsole() {
         scanf("%u", &newMovie.copies.blueRay);
         getchar();
 
+        // save to the db
         saveNewMovie(newMovie);
         break;
       };
@@ -85,20 +91,18 @@ void managementConsole() {
         char title[MAX_MOVIE_NAME_LENGTH];
 
         printf("=> Enter the name of the movie which you would like to delete: --< ");
-
         scanf("%[^\n]", title);
+        getchar();
 
         if (strcmp(title, "q") == 0)
           break;
 
-        int count = 5;
+        int count = MAX_MOVIES;
         Movie *movieResults = searchMoviesByTitle(title, &count);
 
         if (movieResults) {
           if (count == 1) { // only one result found
 
-            printf("=> Movie Found:\n\n");
-            printMovie(movieResults[0]);
             printf("\n=> Delete this movie [y/n]: --< ");
             char answer[10] = "";
             scanf("%s", answer);
@@ -108,11 +112,6 @@ void managementConsole() {
           } else if (count > 1) { // many results
 
             printf("=> %u results found: \n", count);
-            for (int i = 0; i < count - 1; i++) {
-              divider();
-              printf("=> Movie %u:\n\n", i + 1);
-              printMovie(movieResults[i]);
-            }
             divider();
             int id;
             printf("=> Enter the id of the movie you would like to delete: --< ");
@@ -142,7 +141,7 @@ void managementConsole() {
         char query[MAX_MOVIE_NAME_LENGTH];
         scanf("%[^\n]", query);
 
-        int count = 5;
+        int count = MAX_MOVIES;
 
         int idToAlter = -1;
         // WARNING: DO NOT USE THIS VARIABLE IF SEARCH FAILS
@@ -218,20 +217,6 @@ void managementConsole() {
                 strncpy(movie.actors[movie.nActors], input, MAX_ACTOR_NAME_LENGTH);
               }
 
-              // FIXME: EXTRA "q"
-              //
-              // for (movie.nActors = 0; movie.nActors < MAX_ACTORS; movie.nActors++) {
-              //   if (!strcmp(input, "q"))
-              //     break;
-              //
-              //   printf("=> Enter actor %u: --< ", movie.nActors + 1);
-              //   scanf("%[^\n]", input);
-              //   getchar();
-              //
-              //   // FIXME: use new double array
-              //
-              //   strcpy(movie.actors[movie.nActors], input);
-              // }
               break;
             }
 
@@ -258,6 +243,7 @@ void managementConsole() {
             }
           }
 
+          // update the db
           alterMovie(idToAlter, movie);
 
           free(results);
@@ -270,6 +256,13 @@ void managementConsole() {
         listAllMovies();
         break;
       }
+    case 5: // altering charges
+      // TODO: IMPLEMENT
+      printf("=> Altering charges is not yet implemented");
+      break;
+    case 6:
+      printf("=> Exiting management console");
+      return;
     }
-  }
+  } while (choice != 6);
 }

@@ -5,6 +5,7 @@
 
 #include "lib.h"
 
+// Lists every movie in the db
 void listAllMovies() {
 
   Movie allMovies[MAX_MOVIES];
@@ -17,6 +18,7 @@ void listAllMovies() {
   }
 }
 
+// friendly display for a movie
 void printMovie(Movie movie) {
 
   printf("\n\n");
@@ -34,14 +36,19 @@ void printMovie(Movie movie) {
   printf("\n\n");
 }
 
-/// Returns a pointer to the first `count` movies
-///
-/// Sets count to the number of results
-///
-/// If an error occurs, sets count to -1
-///
-/// ALWAYS CHECK FOR NULL
-/// REMEMBER TO `free(movie)` when finished
+/* Returns a pointer to the first `count` movies
+ *
+ * Sets count to the number of results
+ *
+ * If an error occurs, returns NULL
+ *
+ * ALWAYS CHECK FOR NULL
+ * REMEMBER TO `free(movie)` when finished
+ *
+ * Parameters:
+ * char *query - title to search for
+ * int *count - the maximum of records to search through
+ */
 Movie *searchMoviesByTitle(char *query, int *count) {
   // allocate enough memory to hold `count` movies
   Movie *movie = malloc(sizeof(Movie) * (*count));
@@ -60,18 +67,24 @@ Movie *searchMoviesByTitle(char *query, int *count) {
 
   *count = 0;
 
+  bool found = false;
   for (int i = 0; i < desiredCount; i++) {
     if (!strcmp(allMovies[i].title, query)) {
       printf("MATCH FOUND\n");
       printMovie(allMovies[i]);
       movie[*count] = allMovies[i];
       (*count)++;
+      found = true;
     }
   }
 
+  // resize movie to the max it needs
   movie = realloc(movie, sizeof(Movie) * *count);
 
-  return movie;
+  if (found)
+    return movie;
+  else
+    return NULL;
 }
 
 Movie *searchMoviesByID(int id) {
@@ -92,6 +105,7 @@ Movie *searchMoviesByID(int id) {
   return NULL;
 };
 
+// replaces movie that currently has id `id` with `movie`
 void alterMovie(int id, Movie movie) {
   Movie allMovies[MAX_MOVIES];
   int nMovies;
@@ -122,9 +136,9 @@ void alterMovie(int id, Movie movie) {
   fclose(db);
 }
 
-// TODO: TEST
+// remove a movie from the database
 void deleteMovie(int id) {
-  Movie *allMovies;
+  Movie allMovies[MAX_MOVIES];
   int movieCount;
 
   retrieveMovies(allMovies, &movieCount);
@@ -160,13 +174,14 @@ void deleteMovie(int id) {
   }
 }
 
+// gets all currently stored movies and points `allMovies` to them
 void retrieveMovies(Movie *allMovies, int *movieCount) {
   FILE *file = fopen(MOVIE_DB_FILENAME, "rb");
 
   if (file == NULL) {
     printf("Could not locate file, aborting\n");
 
-    exit(-1);
+    return;
   }
 
   // fwrite(&cusName, sizeof(int), 1, text_file);
@@ -180,6 +195,7 @@ void retrieveMovies(Movie *allMovies, int *movieCount) {
   fclose(file);
 }
 
+// store a movie in the db
 void saveNewMovie(Movie movie) {
   FILE *file = fopen(MOVIE_DB_FILENAME, "ab");
 
@@ -194,6 +210,8 @@ void saveNewMovie(Movie movie) {
   int count = 1;
   retrieveMovies(currentMovies, &count);
 
+  // start ids from 100, then increase sequentially
+  // until a unique id is found
   movie.id = 100;
   bool validID = true;
   do {
@@ -201,8 +219,10 @@ void saveNewMovie(Movie movie) {
       if (currentMovies[i].id == movie.id) {
 
         validID = false;
-      } else {
         movie.id++;
+      } else {
+        validID = true;
+        break;
       }
     }
   } while (!validID);
@@ -212,97 +232,84 @@ void saveNewMovie(Movie movie) {
   fclose(file);
 }
 
-Genre pickGenre() {
-  char *options[6] = {
-      "For Action",
-      "For Comedy",
-      "For Horror",
-      "For Musical",
-      "For Romance",
-      "For SciFi",
-  };
+// RETURNS 0 FOR FAILURE, 1 FOR SUCCESS
+int assignMovieToCustomer(int movieID, int customerID, CopyType type, int duration) {
 
-  int choice = chooseFromOptions(6, options);
+  // generate a rent struct
+  Rent newRental = (Rent){
+      .movieID = movieID,
+      .customerID = customerID,
+      .type = type,
+      .rentDuration = duration,
+      .status = Active};
 
-  return choice - 1;
+  // store the rent struct in the database
+
+  int status = saveNewRental(newRental);
+
+  if (status == 0) {
+    printf("=> Writing to file failed, exiting\n");
+    return 1;
+  }
+
+  // alter the amount of copies of the movie accordingly
+
+  Movie *movie = searchMoviesByID(movieID);
+  if (!movie) {
+    printf("Movie does not exist, exiting\n");
+    return 0;
+  }
+
+  switch (type) {
+
+  case Vhs:
+
+    if (movie->copies.vhs > 0) {
+
+      movie->copies.vhs--;
+    } else {
+      printf("=> There are no copies left\n");
+      return 0;
+    }
+
+    break;
+  case Dvd:
+    if (movie->copies.dvd > 0) {
+
+      movie->copies.dvd--;
+    } else {
+      printf("=> There are no copies left\n");
+      return 0;
+    }
+    break;
+  case BlueRay:
+    if (movie->copies.blueRay > 0) {
+
+      movie->copies.blueRay--;
+    } else {
+      printf("=> There are no copies left\n");
+      return 0;
+    }
+    break;
+  }
+
+  // update the db
+  alterMovie(movieID, *movie);
+
+  free(movie);
+
+  // increase the rentCount of the user
+  Customer *customer = searchCustomersByID(customerID);
+
+  if (!customer) {
+    printf("=> Could not find customer, aborting");
+    return 0;
+  }
+
+  customer->rentCount++;
+  alterCustomer(customer->ID, *customer);
+
+  free(customer);
+
+  return 1;
 }
-
-// TODO: alter implementation to use `Movie` type
-void returnMovie(Customer *customer, int movieID) {
-  if (customer->rentCount == 0) {
-    divider();
-    printf("=> This customer currently is not renting any movies.\n");
-    divider();
-    puts("\n");
-    return;
-  }
-  divider();
-  printf("=> Customer is currently renting the following movies:\n");
-  for (int i = 0; i < customer->rentCount; i++) {
-    Movie *movie = searchMoviesByID(customer->rentHistory[i].movieID);
-    printf("=> -------< %d. %s (Rented movie for: %d days)\n",
-           i + 1, movie->title, customer->rentHistory[i].rentDuration);
-    free(movie);
-  }
-
-  int rentalIndex;
-  divider();
-  printf("=> What movie are they returning?\n");
-  printf("=> Enter the moivie number here: ------------<");
-  scanf("%d", &rentalIndex);
-  rentalIndex--;
-
-  if (rentalIndex < 0 || rentalIndex >= customer->rentCount) {
-    divider();
-    printf("=> Invalid selection.\n");
-    divider();
-    puts("\n");
-    return;
-  }
-
-  float rentalCharge = customer->rentHistory[rentalIndex].rentDuration * 1;
-  customer->pendingCharges -= rentalCharge;
-
-  // Shift the rental history to remove the returned film
-  for (int i = rentalIndex; i < customer->rentCount - 1; i++) {
-    customer->rentHistory[i] = customer->rentHistory[i + 1];
-  }
-  customer->rentCount--;
-  divider();
-  printf("=> Movie has been returned successfully and removed from their account!\n");
-  printf("=> Pending charges: $%.2f\n", customer->pendingCharges);
-  divider();
-  puts("\n");
-}
-
-// // TODO: alter implementation to use `Movie` type
-// void rentMovie(Customer *customer) {
-//   if (customer->rentCount >= MAX_RENTALS) {
-//     divider();
-//     printf("=> Customer has reached maximum amount of rentals permitted,\n");
-//     printf("=> They must return any loaned out movies before being allowed to rent more.\n");
-//     divider();
-//     return;
-//   }
-//
-//   Rent newRental;
-//   divider();
-//   printf("=> What is the name of the movie?: ----------< ");
-//   Movie *movie = searchMoviesByID(newRental.movieID);
-//   fgets(newRental.Movie, sizeof(newRental.Movie), stdin);
-//   newRental.Movie[strcspn(newRental.Movie, "\n")] = 0;
-//   divider();
-//   printf("=> How many days will they rent the movie?:--< ");
-//   scanf("%d", &newRental.rentTime);
-//   getchar();
-//
-//   customer->rentHistory[customer->rentCount] = newRental;
-//   customer->rentCount++;
-//
-//   float rentalCharge = newRental.rentTime * 1; // Im makinng the price a £1 per day to rnt idk how rental prices work so just change if needed
-//   customer->pendingCharges += rentalCharge;
-//   divider();
-//   printf("=> Movie has been rented successfully and added to their account!\n");
-//   printf("=> Pending charges: $%.2f\n", customer->pendingCharges);
-//   divider();
-// }
